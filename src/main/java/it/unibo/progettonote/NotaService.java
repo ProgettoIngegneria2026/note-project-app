@@ -1,4 +1,7 @@
 package it.unibo.progettonote;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
 public class NotaService {
     
     public void creaNuovaNota(String titolo, String contenuto, String proprietario, String idCartella) {
