@@ -1,25 +1,36 @@
 package it.unibo.progettonote;
 
 import org.junit.Test;
+
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 public class RegistrazioneTest {
 
     @Test
     public void testRegistrazioneSuccesso() {
-        GestioneUtenti service = new GestioneUtenti();
-        boolean risultato = service.registraNuovoUtente("mario88", "mario@email.it", "pass1234");
-        assertTrue("La registrazione dovrebbe avere successo", risultato);
+        GestioneUtenti gu = new GestioneUtenti();
 
+        String username = "user_" + UUID.randomUUID();
+        String email = "user_" + UUID.randomUUID() + "@email.it";
+
+        boolean ok = gu.registraNuovoUtente(username, email, "password123");
+        assertTrue("La registrazione dovrebbe avere successo", ok);
     }
 
     @Test
-    public void testEmailGiaEsistente() {
-        GestioneUtenti service = new GestioneUtenti();
-        service.registraNuovoUtente("utente1", "test@test.it", "password");
+    public void testRegistrazioneEmailDuplicata() {
+        GestioneUtenti gu = new GestioneUtenti();
 
-        // Tentativo con stessa email
-        boolean risultato = service.registraNuovoUtente("utente2", "test@test.it", "altrapass");
-        assertFalse("Non dovrebbe permettere email duplicate", risultato);
+        String email = "dup_" + UUID.randomUUID() + "@email.it";
+
+        String username1 = "user_" + UUID.randomUUID();
+        assertTrue(gu.registraNuovoUtente(username1, email, "password123"));
+
+        String username2 = "user_" + UUID.randomUUID();
+        boolean ok2 = gu.registraNuovoUtente(username2, email, "password123");
+
+        assertFalse("La registrazione dovrebbe fallire per email duplicata", ok2);
     }
 }
