@@ -2,6 +2,8 @@ package it.unibo.progettonote;
 
 import org.mapdb.Serializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 public class DatabaseNote {
@@ -18,6 +20,23 @@ public class DatabaseNote {
     }
 
     public static void close() {
-        noteRepo = null; // NON chiudere DatabaseCore qui
+        noteRepo = null;
+    }
+
+    // #22: query per owner
+    public static List<Nota> findByOwner(String owner) {
+        List<Nota> res = new ArrayList<>();
+        for (Nota n : getNoteRepo().values()) {
+            if (owner.equals(n.getProprietario())) {
+                res.add(n);
+            }
+        }
+        return res;
+    }
+
+    public static Nota findByIdAndOwner(String id, String owner) {
+        Nota n = getNoteRepo().get(id);
+        if (n == null) return null;
+        return owner.equals(n.getProprietario()) ? n : null;
     }
 }

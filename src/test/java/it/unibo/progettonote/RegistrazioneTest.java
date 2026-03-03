@@ -23,9 +23,9 @@ public class RegistrazioneTest {
     public void testRegistrazioneEmailDuplicata() {
         GestioneUtenti gu = new GestioneUtenti();
 
-        String username1 = "user_" + UUID.randomUUID();
         String email = "dup_" + UUID.randomUUID() + "@email.it";
 
+        String username1 = "user_" + UUID.randomUUID();
         assertTrue(gu.registraNuovoUtente(username1, email, "password123"));
 
         String username2 = "user_" + UUID.randomUUID();
