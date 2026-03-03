@@ -14,7 +14,7 @@ public class Nota implements Serializable {
     private Date dataCreazione;
     private Date dataUltimaModifica;
     private String proprietario;
-    private String idCartella;
+    private String idCartella; // può essere null
     private List<VersioneNota> versioni = new ArrayList<>();
 
     public Nota() {}
