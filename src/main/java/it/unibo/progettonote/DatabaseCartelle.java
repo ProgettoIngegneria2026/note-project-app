@@ -13,7 +13,7 @@ public class DatabaseCartelle {
     public static ConcurrentNavigableMap<String, Cartella> getCartelleRepo() {
         if (cartelleRepo == null) {
             cartelleRepo = DatabaseCore.getDB()
-                    .treeMap("folders", Serializer.STRING, Serializer.JAVA)
+                    .treeMap("cartelle", Serializer.STRING, Serializer.JAVA)
                     .createOrOpen();
         }
         return cartelleRepo;

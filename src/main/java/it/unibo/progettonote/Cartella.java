@@ -5,21 +5,40 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Cartella implements Serializable {
-    private String id;
+
+    private final String id = UUID.randomUUID().toString();
     private String nome;
-    private String proprietario;
+    private final String proprietario; // username dell’utente
 
     public Cartella(String nome, String proprietario) {
-        this.id = UUID.randomUUID().toString();
-        this.nome = nome;
-        this.proprietario = proprietario;
+        if (nome == null || nome.trim().isEmpty()) {
+            throw new IllegalArgumentException("Il nome della cartella non può essere vuoto");
+        }
+        if (proprietario == null || proprietario.trim().isEmpty()) {
+            throw new IllegalArgumentException("Il proprietario non può essere nullo");
+        }
+        this.nome = nome.trim();
+        this.proprietario = proprietario.trim();
     }
 
-    public String getId() { return id; }
-    public String getNome() { return nome; }
-    public String getProprietario() { return proprietario; }
+    public String getId() {
+        return id;
+    }
 
-    public void setNome(String nome) { this.nome = nome; }
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        if (nome == null || nome.trim().isEmpty()) {
+            throw new IllegalArgumentException("Il nome della cartella non può essere vuoto");
+        }
+        this.nome = nome.trim();
+    }
+
+    public String getProprietario() {
+        return proprietario;
+    }
 
     @Override
     public boolean equals(Object o) {

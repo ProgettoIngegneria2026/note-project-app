@@ -10,18 +10,24 @@ public class DatabaseCore {
 
     public static void enableTestMode() {
         testMode = true;
-        if (db != null) {
-            db.close();
-            db = null;
-        }
+        close();
+    }
+
+    public static void disableTestMode() {
+        testMode = false;
+        close();
     }
 
     public static DB getDB() {
-        if (db == null) {
+        if (db == null || db.isClosed()) {
             if (testMode) {
-                db = DBMaker.memoryDB().transactionEnable().make();
+                db = DBMaker.memoryDB()
+                        .transactionEnable()
+                        .make();
             } else {
-                db = DBMaker.fileDB("progetto_sweng.db").transactionEnable().make();
+                db = DBMaker.fileDB("progetto_sweng.db")
+                        .transactionEnable()
+                        .make();
             }
         }
         return db;
@@ -32,9 +38,9 @@ public class DatabaseCore {
     }
 
     public static void close() {
-        if (db != null) {
+        if (db != null && !db.isClosed()) {
             db.close();
-            db = null;
         }
+        db = null;
     }
 }
