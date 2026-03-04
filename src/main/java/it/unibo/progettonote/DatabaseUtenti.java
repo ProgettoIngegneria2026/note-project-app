@@ -1,24 +1,23 @@
 package it.unibo.progettonote;
 
-import org.mapdb.*;
+import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 public class DatabaseUtenti {
-    private static DB db;
     private static ConcurrentNavigableMap<String, Utente> utentiRepo;
-
-    public static DB getDB() {
-        if (db == null || db.isClosed()) {
-            db = DBMaker.fileDB("progetto_sweng.db").transactionEnable().make();
-        }
-        return db;
-    }
 
     public static ConcurrentNavigableMap<String, Utente> getUtentiRepo() {
         if (utentiRepo == null) {
-            // Usiamo l'email come chiave per garantire l'unicità richiesta
-            utentiRepo = getDB().treeMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+            // USIAMO IL CORE! Questo garantisce che il file sia lo stesso per tutti
+            utentiRepo = DatabaseCore.getDB()
+                    .treeMap("utenti", Serializer.STRING, Serializer.JAVA)
+                    .createOrOpen();
         }
         return utentiRepo;
+    }
+
+    // Aggiungiamo un metodo di utilità per il commit se serve
+    public static void commit() {
+        DatabaseCore.commit();
     }
 }

@@ -16,12 +16,7 @@ public class NotaCartellaService {
 
     public void spostaNotaInCartella(String notaId, String cartellaId, String proprietario) {
         if (notaId == null || notaId.isBlank()) throw new IllegalArgumentException("notaId non valido");
-        if (cartellaId == null || cartellaId.isBlank()) throw new IllegalArgumentException("cartellaId non valido");
         if (proprietario == null || proprietario.isBlank()) throw new IllegalArgumentException("proprietario non valido");
-
-        Cartella cartella = cartelleRepo.get(cartellaId);
-        if (cartella == null) throw new IllegalArgumentException("Cartella inesistente");
-        if (!cartella.getProprietario().equals(proprietario)) throw new IllegalArgumentException("Cartella non appartenente all'utente");
 
         Nota nota = noteRepo.get(notaId);
         if (nota == null) throw new IllegalArgumentException("Nota inesistente");
@@ -29,9 +24,30 @@ public class NotaCartellaService {
             throw new IllegalArgumentException("Nota non appartenente all'utente");
         }
 
-        nota.setIdCartella(cartellaId);
+        // Gestione Root: se cartellaId è null o "ROOT", la nota torna libera
+        if (cartellaId == null || cartellaId.equals("ROOT") || cartellaId.isBlank()) {
+            nota.setIdCartella(null);
+        } else {
+            Cartella cartella = cartelleRepo.get(cartellaId);
+            if (cartella == null) throw new IllegalArgumentException("Cartella inesistente");
+            if (!cartella.getProprietario().equals(proprietario)) throw new IllegalArgumentException("Cartella non appartenente all'utente");
+
+            nota.setIdCartella(cartellaId);
+        }
+
         noteRepo.put(notaId, nota);
         DatabaseCore.commit();
+    }
+
+    // Metodo utile per la UI: lista delle cartelle dell'utente
+    public List<Cartella> listaCartelleUtente(String proprietario) {
+        List<Cartella> risultato = new ArrayList<>();
+        for (Cartella c : DatabaseCartelle.getCartelleRepo().values()) {
+            if (proprietario.equals(c.getProprietario())) {
+                risultato.add(c);
+            }
+        }
+        return risultato;
     }
 
     public List<Nota> listaNotePerCartella(String cartellaId, String proprietario) {

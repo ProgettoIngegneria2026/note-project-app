@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class Nota implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -20,6 +21,7 @@ public class Nota implements Serializable {
     public Nota() {}
 
     public Nota(String titolo, String contenuto, String proprietario) {
+        this.id = UUID.randomUUID().toString();
         this.titolo = titolo;
         this.contenuto = contenuto;
         this.proprietario = proprietario;

@@ -7,7 +7,9 @@ public class GestioneUtenti {
     public boolean registraNuovoUtente(String username, String email, String password) {
         if (username == null || email == null || password == null) return false;
 
+        // Recuperiamo il repo (che ora passa internamente da DatabaseCore)
         ConcurrentNavigableMap<String, Utente> repo = DatabaseUtenti.getUtentiRepo();
+
         if (repo.containsKey(email)) {
             System.out.println("DEBUG: Registrazione fallita. Email " + email + " già presente.");
             return false;
@@ -15,12 +17,16 @@ public class GestioneUtenti {
 
         Utente nuovo = new Utente(username, email, password);
         repo.put(email, nuovo);
-        DatabaseUtenti.getDB().commit(); // <--- FONDAMENTALE per salvare su disco!
+
+        // CORREZIONE: Usiamo il commit centralizzato
+        DatabaseCore.commit();
+
         System.out.println("DEBUG: Utente " + email + " salvato con successo.");
         return true;
     }
 
     public boolean login(String email, String password) {
+        // Recuperiamo l'utente
         Utente utente = DatabaseUtenti.getUtentiRepo().get(email);
 
         if (utente == null) {
@@ -29,6 +35,7 @@ public class GestioneUtenti {
         }
 
         if (utente.getPassword().equals(password)) {
+            // Salviamo l'utente nella sessione per l'UC6 e UC7
             SessioneUtente.login(utente);
             System.out.println("DEBUG: Login successo per " + email);
             return true;
