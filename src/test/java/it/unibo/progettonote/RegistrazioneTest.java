@@ -1,5 +1,6 @@
 package it.unibo.progettonote;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -7,6 +8,14 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 public class RegistrazioneTest {
+
+    @Before
+    public void setup() {
+        DatabaseUtenti.close();        // stacca eventuale mappa vecchia
+        DatabaseCore.enableTestMode(); // DB in memoria
+        DatabaseUtenti.getUtentiRepo().clear();
+        DatabaseCore.commit();
+    }
 
     @Test
     public void testRegistrazioneSuccesso() {

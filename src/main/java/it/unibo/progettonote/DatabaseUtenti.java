@@ -1,9 +1,11 @@
 package it.unibo.progettonote;
 
 import org.mapdb.Serializer;
+
 import java.util.concurrent.ConcurrentNavigableMap;
 
 public class DatabaseUtenti {
+
     private static ConcurrentNavigableMap<String, Utente> utentiRepo;
 
     public static ConcurrentNavigableMap<String, Utente> getUtentiRepo() {
@@ -16,8 +18,13 @@ public class DatabaseUtenti {
         return utentiRepo;
     }
 
-    // Aggiungiamo un metodo di utilità per il commit se serve
+    // Commit centralizzato (utile quando salvi/modifichi utenti)
     public static void commit() {
         DatabaseCore.commit();
+    }
+
+    // Reset cache locale (utile in test / chiusura app)
+    public static void close() {
+        utentiRepo = null;
     }
 }
