@@ -23,6 +23,17 @@ public class DatabaseCartelle {
         cartelleRepo = null;
     }
 
+    // Compatibilità con test/vecchio codice
+    public static void enableTestMode() {
+        DatabaseCore.enableTestMode();
+        close(); // reset cache
+    }
+
+    public static void disableTestMode() {
+        DatabaseCore.disableTestMode();
+        close(); // reset cache
+    }
+
     public static List<Cartella> findByOwner(String owner) {
         List<Cartella> res = new ArrayList<>();
         for (Cartella c : getCartelleRepo().values()) {
