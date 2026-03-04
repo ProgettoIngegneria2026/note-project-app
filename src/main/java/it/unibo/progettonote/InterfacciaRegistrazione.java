@@ -40,11 +40,18 @@ public class InterfacciaRegistrazione {
         GestioneUtenti gu = new GestioneUtenti();
 
         btnLogin.addActionListener(e -> {
-            String emailIn = logEmail.getText().trim(); // Usa trim() per evitare spazi bianchi
+            String emailIn = logEmail.getText().trim();
             String passIn = new String(logPass.getPassword());
 
             if (gu.login(emailIn, passIn)) {
-                JOptionPane.showMessageDialog(frame, "Accesso eseguito!");
+                // 1. Chiudiamo la finestra attuale (opzionale, ma consigliato)
+                frame.dispose();
+
+                // 2. Lanciamo la Dashboard passando l'email dell'utente
+                // Il costruttore di DashboardNote si occupa di tutto il resto
+                new DashboardNote(emailIn);
+
+                System.out.println("DEBUG: DashboardNote avviata per " + emailIn);
             } else {
                 JOptionPane.showMessageDialog(frame, "Credenziali errate (controlla la console!)");
             }
