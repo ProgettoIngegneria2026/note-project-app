@@ -7,7 +7,7 @@ public class GestioneUtenti {
     public boolean registraNuovoUtente(String username, String email, String password) {
         if (username == null || email == null || password == null) return false;
 
-        // Recuperiamo il repo (che ora passa internamente da DatabaseCore)
+        // Recuperiamo il repo
         ConcurrentNavigableMap<String, Utente> repo = DatabaseUtenti.getUtentiRepo();
 
         if (repo.containsKey(email)) {

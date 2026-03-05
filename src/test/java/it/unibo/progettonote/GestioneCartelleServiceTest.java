@@ -60,7 +60,7 @@ public class GestioneCartelleServiceTest {
         List<Cartella> lista = service.listaCartelle(UTENTE_TEST);
 
         assertEquals(2, lista.size());
-        // Verifichiamo anche l'ordinamento (lei ha aggiunto il sort alfabetico!)
+        // Verifichiamo anche l'ordinamento
         assertEquals("Cartella 1", lista.get(0).getNome());
         assertEquals("Cartella 2", lista.get(1).getNome());
     }
