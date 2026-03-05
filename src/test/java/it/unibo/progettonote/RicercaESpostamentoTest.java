@@ -6,11 +6,11 @@ import java.util.Date;
 import java.util.List;
 import static org.junit.Assert.*;
 
-public class RicercaESpostamento {
+public class RicercaESpostamentoTest {
 
     private RicercaService ricercaService;
     private NotaCartellaService notaCartellaService;
-    private FolderService folderService; // Usiamo il service per la creazione
+    private GestioneCartelleService gestioneCartelleService ; // Usiamo il service per la creazione
     private final String EMAIL = "email@email.it";
 
     @Before
@@ -29,13 +29,13 @@ public class RicercaESpostamento {
 
         ricercaService = new RicercaService();
         notaCartellaService = new NotaCartellaService();
-        folderService = new FolderService();
+        gestioneCartelleService = new GestioneCartelleService();
     }
 
     @Test
     public void testFlussoCompletoSpostamentoERicerca() {
         // 1. Preparazione: Creiamo una cartella usando il FolderService
-        Cartella c1 = folderService.creaCartella("Esami", EMAIL);
+        Cartella c1 = gestioneCartelleService.creaCartella("Esami", EMAIL);
 
         // Verifichiamo se esiste davvero
         assertTrue("La cartella dovrebbe esistere nel DB",

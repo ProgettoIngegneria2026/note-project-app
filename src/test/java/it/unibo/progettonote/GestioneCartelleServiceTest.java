@@ -5,28 +5,25 @@ import org.junit.Test;
 import java.util.List;
 import static org.junit.Assert.*;
 
-public class FolderServiceTest {
+public class GestioneCartelleServiceTest {
 
-    private FolderService service;
+    private GestioneCartelleService service; // Usiamo il nuovo servizio della collega
     private final String UTENTE_TEST = "mario@test.it";
 
     @Before
     public void setup() {
-
+        // Reset centralizzato
+        DatabaseCore.enableTestMode();
         DatabaseCartelle.close();
         DatabaseNote.close();
 
-        // 1. Attiviamo la modalità test centralizzata (In-Memory)
-        DatabaseCore.enableTestMode();
-
-        // 2. Puliamo i repository per isolare i test
+        // Pulizia esplicita
         DatabaseCartelle.getCartelleRepo().clear();
         DatabaseNote.getNoteRepo().clear();
-
-        // 3. Rendiamo effettive le pulizie
         DatabaseCore.commit();
 
-        service = new FolderService();
+        // Inizializziamo il nuovo servizio
+        service = new GestioneCartelleService();
     }
 
     @Test
@@ -38,13 +35,13 @@ public class FolderServiceTest {
         assertEquals(nome, c.getNome());
         assertEquals(UTENTE_TEST, c.getProprietario());
 
-        // Verifichiamo che sia effettivamente nel DB
+        // Verifichiamo con il repo fisico
         assertTrue(DatabaseCartelle.getCartelleRepo().containsKey(c.getId()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreaCartellaNomeVuoto() {
-        service.creaCartella("", UTENTE_TEST);
+        service.creaCartella("   ", UTENTE_TEST); // Gestione spaziatura inclusa
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -54,23 +51,23 @@ public class FolderServiceTest {
 
     @Test
     public void testListaCartellePerUtente() {
-        // Creiamo cartelle per due utenti diversi
+        // Creazione dati
         service.creaCartella("Cartella 1", UTENTE_TEST);
         service.creaCartella("Cartella 2", UTENTE_TEST);
         service.creaCartella("Altro Utente", "luigi@test.it");
 
-        List<Cartella> lista = service.listaCartellePerUtente(UTENTE_TEST);
+        // Cambiato nome metodo: listaCartellePerUtente -> listaCartelle
+        List<Cartella> lista = service.listaCartelle(UTENTE_TEST);
 
-        // Deve vedere solo le 2 cartelle di Mario
         assertEquals(2, lista.size());
-        for (Cartella c : lista) {
-            assertEquals(UTENTE_TEST, c.getProprietario());
-        }
+        // Verifichiamo anche l'ordinamento (lei ha aggiunto il sort alfabetico!)
+        assertEquals("Cartella 1", lista.get(0).getNome());
+        assertEquals("Cartella 2", lista.get(1).getNome());
     }
 
     @Test
     public void testListaVuotaSeNessunaCartella() {
-        List<Cartella> lista = service.listaCartellePerUtente("utente_nuovo");
+        List<Cartella> lista = service.listaCartelle("utente_nuovo");
         assertTrue(lista.isEmpty());
     }
 }
