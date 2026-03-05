@@ -17,13 +17,11 @@ public class NotaService {
             String idUnivoco = UUID.randomUUID().toString();
             nuovaNota.setId(idUnivoco);
 
-            // 3. Salvataggio su Database
-            ConcurrentNavigableMap<String, Nota> repo = DatabaseUtenti.getUtentiRepo().getDB()
-                .treeMap("notes", org.mapdb.Serializer.STRING, org.mapdb.Serializer.JAVA)
-                .createOrOpen();
+            // 3. Salvataggio tramite il nuovo DatabaseNote centralizzato
+            ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
             
             repo.put(idUnivoco, nuovaNota);
-            DatabaseUtenti.getDB().commit();
+            DatabaseCore.commit(); // <-- Uso del nuovo commit di DatabaseCore
             
             return true;
         } catch (IllegalArgumentException e) {
@@ -32,7 +30,7 @@ public class NotaService {
         }
     }
 
-    // Metodo per aggiungere una versione (richiesto dai tuoi errori precedenti)
+    // Metodo per aggiungere una versione
     public void aggiungiVersione(Nota nota, String nuovoContenuto) {
         int numeroVersione = nota.getVersioni().size() + 1;
         VersioneNota v = new VersioneNota(numeroVersione, nuovoContenuto, nota.getProprietario(), new Date());
