@@ -17,9 +17,8 @@ public class Cartella implements Serializable {
         if (proprietario == null || proprietario.trim().isEmpty()) {
             throw new IllegalArgumentException("Il proprietario non può essere nullo");
         }
-
-        this.nome = nome;
-        this.proprietario = proprietario;
+        this.nome = nome.trim();
+        this.proprietario = proprietario.trim();
     }
 
     public String getId() {
@@ -34,7 +33,7 @@ public class Cartella implements Serializable {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Il nome della cartella non può essere vuoto");
         }
-        this.nome = nome;
+        this.nome = nome.trim();
     }
 
     public String getProprietario() {

@@ -9,7 +9,7 @@ public class NotaTest {
     public void testCreazioneNotaValida() {
         // Creazione di una nota con contenuto entro i limiti
         Nota nota = new Nota("Titolo", "Contenuto breve", "User1");
-        
+
         // Verifica che il contenuto sia salvato correttamente e rispetti il limite
         assertNotNull(nota.getContenuto());
         assertTrue("Il contenuto deve essere <= 280 caratteri", nota.getContenuto().length() <= 280);
@@ -17,12 +17,10 @@ public class NotaTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreazioneNotaTroppoLunga() {
-        // Genera una stringa di 281 caratteri
-        String testoLungo = "a".repeat(281);
-        
+        // Genera una stringa di 281 caratteri (compatibile Java 8)
+        String testoLungo = new String(new char[281]).replace('\0', 'a');
+
         // La chiamata deve sollevare IllegalArgumentException
-        ValidatoreNote.valida(testoLungo); 
-    
+        ValidatoreNote.valida(testoLungo);
     }
 }
-    //fix pr

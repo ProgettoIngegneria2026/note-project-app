@@ -19,7 +19,7 @@ public class DatabaseCore {
      */
     public static void enableTestMode() {
         testMode = true;
-        close(); // Chiude l'istanza corrente per forzare la riapertura in memoria
+        close(); // forza riapertura in RAM
     }
 
     /**
@@ -27,12 +27,12 @@ public class DatabaseCore {
      */
     public static void disableTestMode() {
         testMode = false;
-        close(); // Chiude l'istanza in memoria per tornare su file
+        close(); // torna su file
     }
 
     /**
      * Restituisce l'istanza attiva del database.
-     * Usa synchronized per prevenire accessi contemporanei da thread diversi.
+     * synchronized per prevenire accessi contemporanei da thread diversi.
      */
     public static synchronized DB getDB() {
         if (db == null || db.isClosed()) {
@@ -45,7 +45,7 @@ public class DatabaseCore {
                 // Database persistente su FILE
                 db = DBMaker.fileDB("progetto_sweng.db")
                         .transactionEnable()
-                        .closeOnJvmShutdown() // Rilascia il lock del file alla chiusura dell'app
+                        .closeOnJvmShutdown() // rilascia il lock del file alla chiusura dell'app
                         .make();
             }
         }
