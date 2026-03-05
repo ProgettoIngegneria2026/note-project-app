@@ -94,6 +94,12 @@ public class DashboardNote {
         JButton btnApri = new JButton("Apri Nota");
         btnApri.addActionListener(e -> apriNotaSelezionata());
 
+        JButton btnGestisciCartelle = new JButton("Gestisci Cartelle");
+        btnGestisciCartelle.addActionListener(e -> {
+            new DashboardCartelle(proprietario);
+        });
+
+        buttons.add(btnGestisciCartelle);
         buttons.add(btnSposta);
         buttons.add(btnApri);
 
