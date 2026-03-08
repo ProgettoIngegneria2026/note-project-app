@@ -20,7 +20,6 @@ public class DashboardNote {
     private DefaultTableModel model;
     private JLabel infoLabel;
 
-    // Componenti per UC7 (Ricerca)
     private JTextField searchField;
     private JSpinner dateInizio;
     private JSpinner dateFine;
@@ -33,11 +32,11 @@ public class DashboardNote {
 
     private void initUI() {
         frame = new JFrame("Dashboard Note - " + proprietario);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(950, 550);
         frame.setLayout(new BorderLayout());
 
-        // --- NORD: BARRA DI RICERCA (UC7) ---
+        // --- NORD: BARRA DI RICERCA ---
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchPanel.setBorder(BorderFactory.createTitledBorder("Filtra le tue note"));
 
@@ -133,8 +132,11 @@ public class DashboardNote {
         bottomPanel.add(buttons, BorderLayout.EAST);
 
         // --- ASSEMBLAGGIO ---
-        frame.add(searchPanel, BorderLayout.NORTH);
-        frame.add(topPanel, BorderLayout.BEFORE_FIRST_LINE);
+        JPanel northContainer = new JPanel(new BorderLayout());
+        northContainer.add(searchPanel, BorderLayout.NORTH);
+        northContainer.add(topPanel, BorderLayout.SOUTH);
+
+        frame.add(northContainer, BorderLayout.NORTH);
         frame.add(new JScrollPane(table), BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
 
