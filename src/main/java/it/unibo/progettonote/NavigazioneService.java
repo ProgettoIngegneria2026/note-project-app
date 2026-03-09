@@ -22,17 +22,21 @@ public class NavigazioneService {
     }
 
     public Nota dettaglioNota(String notaId, String proprietario) {
-        if (notaId == null || notaId.trim().isEmpty()) {
-            throw new IllegalArgumentException("notaId non valido");
-        }
-        if (proprietario == null || proprietario.trim().isEmpty()) {
-            throw new IllegalArgumentException("proprietario non valido");
-        }
-
-        Nota n = DatabaseNote.findByIdAndOwner(notaId, proprietario);
-        if (n == null) {
-            throw new IllegalArgumentException("Nota inesistente o non appartenente all'utente");
-        }
-        return n;
+    if (notaId == null || notaId.trim().isEmpty()) {
+        throw new IllegalArgumentException("notaId non valido");
     }
+    if (proprietario == null || proprietario.trim().isEmpty()) {
+        throw new IllegalArgumentException("proprietario non valido");
+    }
+
+    Nota n = DatabaseNote.findByIdAndOwner(notaId, proprietario);
+
+    if (n == null) {
+        throw new IllegalArgumentException("Nota inesistente o non appartenente all'utente");
+    }
+
+    return n;
+}
+
+
 }

@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class Nota implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -17,6 +20,10 @@ public class Nota implements Serializable {
     private String proprietario;
     private String idCartella; // può essere null
     private List<VersioneNota> versioni = new ArrayList<>();
+    private Map<String, String> permessi = new HashMap<>();
+    private List<String> collaboratori = new ArrayList<>();
+
+
 
     public Nota() {}
 
@@ -52,4 +59,42 @@ public class Nota implements Serializable {
 
     public List<VersioneNota> getVersioni() { return versioni; }
     public void setVersioni(List<VersioneNota> versioni) { this.versioni = versioni; }
+    public void assegnaPermesso(String utente, String tipoPermesso) {
+    permessi.put(utente, tipoPermesso);
+}
+
+public String getPermesso(String utente) {
+    return permessi.get(utente);
+}
+
+public boolean puoLeggere(String utente) {
+    return utente.equals(proprietario) || permessi.containsKey(utente);
+}
+
+public boolean puoScrivere(String utente) {
+    return utente.equals(proprietario) || "scrittura".equals(permessi.get(utente));
+}
+
+public Map<String, String> getPermessi() {
+    return permessi;
+}
+
+public void setPermessi(Map<String, String> permessi) {
+    this.permessi = permessi;
+}
+public void aggiungiCollaboratore(String email) {
+    if (!collaboratori.contains(email)) {
+        collaboratori.add(email);
+    }
+}
+
+public void rimuoviCollaboratore(String email) {
+    collaboratori.remove(email);
+}
+
+public List<String> getCollaboratori() {
+    return collaboratori;
+}
+
+
 }
