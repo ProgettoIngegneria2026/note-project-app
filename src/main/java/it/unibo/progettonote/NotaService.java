@@ -1,6 +1,7 @@
 package it.unibo.progettonote;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentNavigableMap;
 
@@ -38,4 +39,13 @@ public class NotaService {
         nota.setContenuto(nuovoContenuto);
         nota.setDataUltimaModifica(new Date());
     }
+    public List<Nota> getNoteCondiviseConUtente(String utente) {
+    ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
+
+    return repo.values().stream()
+        .filter(n -> n.getCollaboratori() != null && n.getCollaboratori().contains(utente))
+        .toList();
+}
+
+
 }
