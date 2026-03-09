@@ -1,52 +1,8 @@
 package it.unibo.progettonote;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-// Classe rappresentante una Nota
-class Nota {
-    private String id;
-    private String titolo;
-    private String contenuto;
-    private String proprietario;
-    private List<String> collaboratori;
-    private Date dataUltimaModifica;
-
-    public Nota() {}
-
-    // getter e setter
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public String getTitolo() { return titolo; }
-    public void setTitolo(String titolo) { this.titolo = titolo; }
-
-    public String getContenuto() { return contenuto; }
-    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
-
-    public String getProprietario() { return proprietario; }
-    public void setProprietario(String proprietario) { this.proprietario = proprietario; }
-
-    public List<String> getCollaboratori() { return collaboratori; }
-    public void setCollaboratori(List<String> collaboratori) { this.collaboratori = collaboratori; }
-
-    public Date getDataUltimaModifica() { return dataUltimaModifica; }
-    public void setDataUltimaModifica(Date dataUltimaModifica) { this.dataUltimaModifica = dataUltimaModifica; }
-}
-
-// "Database" simulato per le note
-class DatabaseNote {
-    private static Map<String, Nota> noteRepo = new HashMap<>();
-
-    public static Map<String, Nota> getNoteRepo() {
-        return noteRepo;
-    }
-}
-
-// Servizio principale per gestire le note
 public class NotaService {
 
     // Crea una nuova nota
@@ -59,7 +15,7 @@ public class NotaService {
         n.setContenuto(contenuto);
         n.setProprietario(proprietario);
         n.setCollaboratori(new ArrayList<>());
-        n.setDataUltimaModifica(new Date());
+        n.setDataUltimaModifica(new java.util.Date());
 
         DatabaseNote.getNoteRepo().put(n.getId(), n);
         return true;
@@ -74,7 +30,7 @@ public class NotaService {
 
         nota.setTitolo(titolo);
         nota.setContenuto(contenuto);
-        nota.setDataUltimaModifica(new Date());
+        nota.setDataUltimaModifica(new java.util.Date());
 
         DatabaseNote.getNoteRepo().put(idNota, nota);
         return true;
