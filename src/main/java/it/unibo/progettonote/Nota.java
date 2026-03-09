@@ -17,6 +17,8 @@ public class Nota implements Serializable {
     private Date dataUltimaModifica;
     private String proprietario;
     private String idCartella; // può essere null
+    private List<String> collaboratori = new ArrayList<>();
+
     private List<VersioneNota> versioni = new ArrayList<>();
     private Map<String, String> permessi;
 
@@ -55,6 +57,13 @@ public class Nota implements Serializable {
     public Map<String, String> getPermessi() { return permessi; }
     public void setPermessi(Map<String, String> permessi) { this.permessi = permessi; }
     
+  public List<String> getCollaboratori() { 
+    return collaboratori; 
+}
+
+public void setCollaboratori(List<String> collaboratori) { 
+    this.collaboratori = collaboratori; 
+}
 
 
     public List<VersioneNota> getVersioni() { return versioni; }
