@@ -17,6 +17,9 @@ public class Nota implements Serializable {
     private String proprietario;
     private String idCartella; // può essere null
     private List<VersioneNota> versioni = new ArrayList<>();
+    // utenti con cui la nota è condivisa
+   private List<String> collaboratori = new ArrayList<>();
+
 
     public Nota() {}
 
@@ -52,4 +55,24 @@ public class Nota implements Serializable {
 
     public List<VersioneNota> getVersioni() { return versioni; }
     public void setVersioni(List<VersioneNota> versioni) { this.versioni = versioni; }
+    public List<String> getCollaboratori() {
+    return collaboratori;
+}
+
+public void setCollaboratori(List<String> collaboratori) {
+    this.collaboratori = collaboratori;
+}
+public void aggiungiCollaboratore(String username) {
+    if (!collaboratori.contains(username)) {
+        collaboratori.add(username);
+    }
+}
+
+public void rimuoviCollaboratore(String username) {
+    collaboratori.remove(username);
+}
+public boolean puoAccedere(String username) {
+    return proprietario.equals(username) || collaboratori.contains(username);
+}
+
 }
