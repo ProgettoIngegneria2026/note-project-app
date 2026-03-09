@@ -18,7 +18,7 @@ public class DashboardNote {
     private JFrame frame;
     private JTable table;
     private DefaultTableModel model;
-    private JLabel infoLabel;
+    private JLabel infoLabel = new JLabel(" Benvenuto!"); // unica dichiarazione
 
     // Componenti per UC7 (Ricerca)
     private JTextField searchField;
@@ -76,10 +76,6 @@ public class DashboardNote {
         searchPanel.add(btnReset);
 
         // --- CENTRO: TABELLA ---
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(850, 500);
-        frame.setLayout(new BorderLayout());
-
         model = new DefaultTableModel(new Object[]{"ID", "Titolo", "Cartella", "Ultima modifica"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -90,33 +86,6 @@ public class DashboardNote {
 
         // --- SUD: AZIONI (UC6) ---
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        infoLabel = new JLabel(" Benvenuto!");
-        table.getColumnModel().getColumn(0).setMaxWidth(0);
-
-        // --- Pannello Superiore ---
-        JPanel top = new JPanel(new BorderLayout());
-        infoLabel = new JLabel(" Benvenuto!");
-        
-        JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        
-        JButton btnNuova = new JButton("Nuova Nota");
-        btnNuova.addActionListener(e -> creaNuovaNota());
-        
-        JButton btnCartelle = new JButton("Gestione Cartelle");
-        btnCartelle.addActionListener(e -> new DashboardCartelle(proprietario));
-        
-        JButton refresh = new JButton("Aggiorna");
-        refresh.addActionListener(e -> caricaNote());
-        
-        topButtons.add(btnNuova);
-        topButtons.add(btnCartelle);
-        topButtons.add(refresh);
-        
-        top.add(infoLabel, BorderLayout.CENTER);
-        top.add(topButtons, BorderLayout.EAST);
-
-        // --- Pannello Inferiore ---
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnSposta = new JButton("Sposta in Cartella");
@@ -126,9 +95,7 @@ public class DashboardNote {
         btnApri.addActionListener(e -> apriNotaSelezionata());
 
         JButton btnGestisciCartelle = new JButton("Gestisci Cartelle");
-        btnGestisciCartelle.addActionListener(e -> {
-            new DashboardCartelle(proprietario);
-        });
+        btnGestisciCartelle.addActionListener(e -> new DashboardCartelle(proprietario));
 
         buttons.add(btnGestisciCartelle);
         buttons.add(btnSposta);
@@ -137,7 +104,27 @@ public class DashboardNote {
         bottomPanel.add(infoLabel, BorderLayout.WEST);
         bottomPanel.add(buttons, BorderLayout.EAST);
 
-        // Assemblaggio
+        // --- Pannello Superiore ---
+        JPanel top = new JPanel(new BorderLayout());
+        JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton btnNuova = new JButton("Nuova Nota");
+        btnNuova.addActionListener(e -> creaNuovaNota());
+
+        JButton btnCartelle = new JButton("Gestione Cartelle");
+        btnCartelle.addActionListener(e -> new DashboardCartelle(proprietario));
+
+        JButton refresh = new JButton("Aggiorna");
+        refresh.addActionListener(e -> caricaNote());
+
+        topButtons.add(btnNuova);
+        topButtons.add(btnCartelle);
+        topButtons.add(refresh);
+
+        top.add(infoLabel, BorderLayout.CENTER);
+        top.add(topButtons, BorderLayout.EAST);
+
+        // Assemblaggio frame
         frame.add(searchPanel, BorderLayout.NORTH);
         frame.add(new JScrollPane(table), BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -159,10 +146,8 @@ public class DashboardNote {
 
         List<Nota> risultati;
         if (!query.isEmpty()) {
-            // Cerca per testo
             risultati = ricercaService.cercaPerParolaChiave(query, proprietario);
         } else {
-            // Cerca per data se il testo è vuoto
             risultati = ricercaService.cercaPerData(inizio, fine, proprietario);
         }
 
@@ -179,29 +164,13 @@ public class DashboardNote {
             if (n.getIdCartella() != null) {
                 Cartella c = DatabaseCartelle.getCartelleRepo().get(n.getIdCartella());
                 if (c != null) nomeCartella = c.getNome();
-        try {
-            List<Nota> note = navService.listaNoteUtenteOrdinate(proprietario);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-            for (Nota n : note) {
-                String nomeCartella = "Nessuna (Root)";
-                if (n.getIdCartella() != null) {
-                    Cartella c = DatabaseCartelle.getCartelleRepo().get(n.getIdCartella());
-                    if (c != null) nomeCartella = c.getNome();
-                }
-
-                model.addRow(new Object[]{
-                        n.getId(),
-                        n.getTitolo(),
-                        nomeCartella,
-                        sdf.format(n.getDataUltimaModifica())
-                });
             }
+
             model.addRow(new Object[]{
-                    n.getId(),
-                    n.getTitolo(),
-                    nomeCartella,
-                    sdf.format(n.getDataUltimaModifica())
+                n.getId(),
+                n.getTitolo(),
+                nomeCartella,
+                sdf.format(n.getDataUltimaModifica())
             });
         }
     }
@@ -215,19 +184,19 @@ public class DashboardNote {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.add(new JLabel("Titolo:"), BorderLayout.NORTH);
         panel.add(titoloField, BorderLayout.CENTER);
-        
+
         JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
         bottomPanel.add(new JLabel("Contenuto (max 280 car.):"), BorderLayout.NORTH);
         bottomPanel.add(new JScrollPane(contenutoArea), BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
-        int result = JOptionPane.showConfirmDialog(frame, panel, 
-                 "Crea Nuova Nota", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        
+        int result = JOptionPane.showConfirmDialog(frame, panel,
+                "Crea Nuova Nota", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
         if (result == JOptionPane.OK_OPTION) {
             boolean creata = notaService.creaNuovaNota(titoloField.getText(), contenutoArea.getText(), proprietario);
             if (creata) {
-                caricaNote(); // Aggiorna automaticamente la tabella
+                caricaNote();
             } else {
                 JOptionPane.showMessageDialog(frame, "Errore: il contenuto supera i 280 caratteri o è vuoto.", "Errore", JOptionPane.ERROR_MESSAGE);
             }
@@ -251,10 +220,7 @@ public class DashboardNote {
 
         String[] nomi = new String[cartelle.size() + 1];
         nomi[0] = "Sposta in Root";
-        for (int i = 0; i < cartelle.size(); i++) nomi[i+1] = cartelle.get(i).getNome();
-        String[] opzioni = new String[cartelle.size() + 1];
-        opzioni[0] = "Sposta in Root (Nessuna)";
-        for (int i = 0; i < cartelle.size(); i++) opzioni[i+1] = cartelle.get(i).getNome();
+        for (int i = 0; i < cartelle.size(); i++) nomi[i + 1] = cartelle.get(i).getNome();
 
         String scelta = (String) JOptionPane.showInputDialog(frame, "Sposta in:", "Sposta Nota",
                 JOptionPane.QUESTION_MESSAGE, null, nomi, nomi[0]);
@@ -266,9 +232,6 @@ public class DashboardNote {
             }
             cartService.spostaNotaInCartella(notaId, idDest, proprietario);
             caricaNote();
-
-            cartService.spostaNotaInCartella(notaId, idDestinazione, proprietario);
-            caricaNote(); 
         }
     }
 
