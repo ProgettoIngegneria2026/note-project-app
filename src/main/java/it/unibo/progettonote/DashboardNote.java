@@ -169,42 +169,28 @@ public class DashboardNote {
         aggiornaTabella(risultati);
         infoLabel.setText(" Risultati ricerca: " + risultati.size());
     }
+private void aggiornaTabella(List<Nota> note) {
+    model.setRowCount(0);
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-    private void aggiornaTabella(List<Nota> note) {
-        model.setRowCount(0);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-        for (Nota n : note) {
-            String nomeCartella = "Root";
-            if (n.getIdCartella() != null) {
-                Cartella c = DatabaseCartelle.getCartelleRepo().get(n.getIdCartella());
-                if (c != null) nomeCartella = c.getNome();
-        try {
-            List<Nota> note = navService.listaNoteUtenteOrdinate(proprietario);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-            for (Nota n : note) {
-                String nomeCartella = "Nessuna (Root)";
-                if (n.getIdCartella() != null) {
-                    Cartella c = DatabaseCartelle.getCartelleRepo().get(n.getIdCartella());
-                    if (c != null) nomeCartella = c.getNome();
-                }
-
-                model.addRow(new Object[]{
-                        n.getId(),
-                        n.getTitolo(),
-                        nomeCartella,
-                        sdf.format(n.getDataUltimaModifica())
-                });
-            }
-            model.addRow(new Object[]{
-                    n.getId(),
-                    n.getTitolo(),
-                    nomeCartella,
-                    sdf.format(n.getDataUltimaModifica())
-            });
+    for (Nota n : note) {
+        String nomeCartella = "Root";
+        if (n.getIdCartella() != null) {
+            Cartella c = DatabaseCartelle.getCartelleRepo().get(n.getIdCartella());
+            if (c != null) nomeCartella = c.getNome();
         }
+
+        model.addRow(new Object[]{
+                n.getId(),
+                n.getTitolo(),
+                nomeCartella,
+                sdf.format(n.getDataUltimaModifica())
+        });
     }
+}
+
+    
+    
 
     private void creaNuovaNota() {
         JTextField titoloField = new JTextField();
@@ -267,9 +253,7 @@ public class DashboardNote {
             cartService.spostaNotaInCartella(notaId, idDest, proprietario);
             caricaNote();
 
-            cartService.spostaNotaInCartella(notaId, idDestinazione, proprietario);
-            caricaNote(); 
-        }
+       }
     }
 
     private void apriNotaSelezionata() {
