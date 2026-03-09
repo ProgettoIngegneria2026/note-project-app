@@ -1,71 +1,121 @@
 package it.unibo.progettonote;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+// Classe rappresentante una Nota
+class Nota {
+    private String id;
+    private String titolo;
+    private String contenuto;
+    private String proprietario;
+    private List<String> collaboratori;
+    private Date dataUltimaModifica;
+
+    public Nota() {}
+
+    // getter e setter
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getTitolo() { return titolo; }
+    public void setTitolo(String titolo) { this.titolo = titolo; }
+
+    public String getContenuto() { return contenuto; }
+    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
+
+    public String getProprietario() { return proprietario; }
+    public void setProprietario(String proprietario) { this.proprietario = proprietario; }
+
+    public List<String> getCollaboratori() { return collaboratori; }
+    public void setCollaboratori(List<String> collaboratori) { this.collaboratori = collaboratori; }
+
+    public Date getDataUltimaModifica() { return dataUltimaModifica; }
+    public void setDataUltimaModifica(Date dataUltimaModifica) { this.dataUltimaModifica = dataUltimaModifica; }
+}
+
+// "Database" simulato per le note
+class DatabaseNote {
+    private static Map<String, Nota> noteRepo = new HashMap<>();
+
+    public static Map<String, Nota> getNoteRepo() {
+        return noteRepo;
+    }
+}
+
+// Servizio principale per gestire le note
 public class NotaService {
 
-    // Metodo per creare una nuova nota (UC4)
+    // Crea una nuova nota
     public boolean creaNuovaNota(String titolo, String contenuto, String proprietario) {
-        try {
-            // 1. Validazione (280 caratteri)
-            ValidatoreNote.valida(contenuto);
+        if (titolo == null || contenuto == null || contenuto.length() > 280) return false;
 
-            // 2. Creazione oggetto Nota
-            Nota nuovaNota = new Nota(titolo, contenuto, proprietario);
-            String idUnivoco = UUID.randomUUID().toString();
-            nuovaNota.setId(idUnivoco);
+        Nota n = new Nota();
+        n.setId(generateId());
+        n.setTitolo(titolo);
+        n.setContenuto(contenuto);
+        n.setProprietario(proprietario);
+        n.setCollaboratori(new ArrayList<>());
+        n.setDataUltimaModifica(new Date());
 
-            // 3. Salvataggio tramite il nuovo DatabaseNote centralizzato
-            ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
-            
-            repo.put(idUnivoco, nuovaNota);
-            DatabaseCore.commit(); // <-- Uso del nuovo commit di DatabaseCore
-            
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Errore validazione: " + e.getMessage());
-            return false;
-        }
+        DatabaseNote.getNoteRepo().put(n.getId(), n);
+        return true;
     }
 
-    // Metodo per aggiungere una versione
-    public void aggiungiVersione(Nota nota, String nuovoContenuto) {
-        int numeroVersione = nota.getVersioni().size() + 1;
-        VersioneNota v = new VersioneNota(numeroVersione, nuovoContenuto, nota.getProprietario(), new Date());
-        nota.getVersioni().add(v);
-        nota.setContenuto(nuovoContenuto);
+    // Aggiorna una nota esistente
+    public boolean updateNota(String idNota, String titolo, String contenuto, String proprietario) {
+        Nota nota = DatabaseNote.getNoteRepo().get(idNota);
+        if (nota == null) return false;
+        if (!nota.getProprietario().equals(proprietario)) return false;
+        if (titolo == null || contenuto == null || contenuto.length() > 280) return false;
+
+        nota.setTitolo(titolo);
+        nota.setContenuto(contenuto);
         nota.setDataUltimaModifica(new Date());
-    }
-    public void aggiungiCollaboratore(String idNota, String username) {
 
-    Nota nota = trovaNotaPerId(idNota);
-
-    if (nota == null) {
-        throw new RuntimeException("Nota non trovata");
+        DatabaseNote.getNoteRepo().put(idNota, nota);
+        return true;
     }
 
-    nota.aggiungiCollaboratore(username);
-    DatabaseCore.commit();
-}
+    // Aggiunge collaboratori a una nota
+    public boolean aggiungiCollaboratori(String idNota, List<String> collaboratori, String proprietario) {
+        Nota nota = DatabaseNote.getNoteRepo().get(idNota);
+        if (nota == null) return false;
+        if (!nota.getProprietario().equals(proprietario)) return false;
 
-public void rimuoviCollaboratore(String idNota, String username) {
+        if (nota.getCollaboratori() == null) {
+            nota.setCollaboratori(new ArrayList<>());
+        }
 
-    Nota nota = trovaNotaPerId(idNota);
+        for (String c : collaboratori) {
+            if (!nota.getCollaboratori().contains(c)) {
+                nota.getCollaboratori().add(c);
+            }
+        }
 
-    if (nota == null) {
-        throw new RuntimeException("Nota non trovata");
+        DatabaseNote.getNoteRepo().put(idNota, nota);
+        return true;
     }
 
-    nota.rimuoviCollaboratore(username);
-    DatabaseCore.commit();
-}
+    // Rimuove collaboratori da una nota
+    public boolean rimuoviCollaboratori(String idNota, List<String> collaboratori, String proprietario) {
+        Nota nota = DatabaseNote.getNoteRepo().get(idNota);
+        if (nota == null) return false;
+        if (!nota.getProprietario().equals(proprietario)) return false;
 
-private Nota trovaNotaPerId(String idNota) {
-    ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
-    return repo.get(idNota);
-}
+        if (nota.getCollaboratori() != null) {
+            nota.getCollaboratori().removeAll(collaboratori);
+        }
 
+        DatabaseNote.getNoteRepo().put(idNota, nota);
+        return true;
+    }
 
+    // Genera un ID unico per la nota
+    private String generateId() {
+        return "N" + System.currentTimeMillis();
+    }
 }
