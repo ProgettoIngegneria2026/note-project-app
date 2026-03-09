@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class Nota implements Serializable {
@@ -17,6 +18,7 @@ public class Nota implements Serializable {
     private String proprietario;
     private String idCartella; // può essere null
     private List<VersioneNota> versioni = new ArrayList<>();
+    private Map<String, String> permessi;
 
     public Nota() {}
 
@@ -49,6 +51,11 @@ public class Nota implements Serializable {
 
     public String getIdCartella() { return idCartella; }
     public void setIdCartella(String idCartella) { this.idCartella = idCartella; }
+    
+    public Map<String, String> getPermessi() { return permessi; }
+    public void setPermessi(Map<String, String> permessi) { this.permessi = permessi; }
+    
+
 
     public List<VersioneNota> getVersioni() { return versioni; }
     public void setVersioni(List<VersioneNota> versioni) { this.versioni = versioni; }
