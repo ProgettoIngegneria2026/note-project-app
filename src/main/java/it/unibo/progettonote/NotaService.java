@@ -38,4 +38,34 @@ public class NotaService {
         nota.setContenuto(nuovoContenuto);
         nota.setDataUltimaModifica(new Date());
     }
+    public void aggiungiCollaboratore(String idNota, String username) {
+
+    Nota nota = trovaNotaPerId(idNota);
+
+    if (nota == null) {
+        throw new RuntimeException("Nota non trovata");
+    }
+
+    nota.aggiungiCollaboratore(username);
+    DatabaseCore.commit();
+}
+
+public void rimuoviCollaboratore(String idNota, String username) {
+
+    Nota nota = trovaNotaPerId(idNota);
+
+    if (nota == null) {
+        throw new RuntimeException("Nota non trovata");
+    }
+
+    nota.rimuoviCollaboratore(username);
+    DatabaseCore.commit();
+}
+
+private Nota trovaNotaPerId(String idNota) {
+    ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
+    return repo.get(idNota);
+}
+
+
 }
