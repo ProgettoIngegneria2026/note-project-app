@@ -3,12 +3,15 @@ package it.unibo.progettonote;
 import javax.swing.*;
 
 public class DettaglioNotaFrame extends JFrame {
-    public DettaglioNotaFrame(Nota nota, String currentUser) {
-        setTitle("Dettaglio Nota: " + nota.getTitolo());
-        JTextArea area = new JTextArea(nota.getContenuto());
-        area.setEditable(nota.isModificabile(currentUser));
-        add(area);
-        setSize(400,300);
+    
+    private Nota nota;
+
+    public DettaglioNotaFrame(Nota nota, String utente) {
+        this.nota = nota;
+        boolean modificabile = nota.isModificabile(utente);
+        JLabel label = new JLabel("Nota " + (modificabile ? "modificabile" : "sola lettura"));
+        add(label);
+        setSize(300, 200);
         setVisible(true);
     }
 }

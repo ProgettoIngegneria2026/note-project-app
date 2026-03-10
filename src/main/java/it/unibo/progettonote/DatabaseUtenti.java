@@ -1,30 +1,19 @@
 package it.unibo.progettonote;
 
-import org.mapdb.Serializer;
-
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DatabaseUtenti {
 
-    private static ConcurrentNavigableMap<String, Utente> utentiRepo;
+    private Map<String, String> utentiRepo = new HashMap<>();
 
-    public static ConcurrentNavigableMap<String, Utente> getUtentiRepo() {
-        if (utentiRepo == null) {
-            // USIAMO IL CORE! Questo garantisce che il file sia lo stesso per tutti
-            utentiRepo = DatabaseCore.getDB()
-                    .treeMap("utenti", Serializer.STRING, Serializer.JAVA)
-                    .createOrOpen();
-        }
+    // Restituisce repository utenti
+    public Map<String, String> getUtentiRepo() {
         return utentiRepo;
     }
 
-    // Commit centralizzato (utile quando salvi/modifichi utenti)
-    public static void commit() {
-        DatabaseCore.commit();
-    }
-
-    // Reset cache locale (utile in test / chiusura app)
-    public static void close() {
-        utentiRepo = null;
+    // Chiude database (placeholder)
+    public void close() {
+        utentiRepo.clear();
     }
 }

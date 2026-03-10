@@ -2,9 +2,14 @@ package it.unibo.progettonote;
 
 public class InterfacciaRegistrazione {
 
-    private DashboardNote dashboard;
+    private String utente;
 
-    public InterfacciaRegistrazione() {
-        this.dashboard = new DashboardNote(); // nessun argomento
+    public InterfacciaRegistrazione(String utente) {
+        this.utente = utente;
+    }
+
+    public void mostra() {
+        DashboardNote dashboard = new DashboardNote(utente);
+        dashboard.mostraDashboard();
     }
 }

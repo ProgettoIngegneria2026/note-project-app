@@ -1,23 +1,45 @@
 package it.unibo.progettonote;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class NotaService {
-    private Map<String, Nota> noteRepo = new HashMap<>();
+    private final List<Nota> note = new ArrayList<>();
 
-    public void salvaNota(Nota nota, String user) throws IllegalAccessException {
-        if (!nota.isModificabile(user)) {
-            throw new IllegalAccessException("Utente non autorizzato a modificare questa nota");
+    public Nota creaNuovaNota(String id, String titolo, String contenuto, String owner) {
+        Nota n = new Nota(id, titolo, contenuto, owner);
+        note.add(n);
+        return n;
+    }
+
+    public void aggiungiCollaboratore(String notaId, String collaboratore) {
+        // Implementazione dummy
+    }
+
+    public void rimuoviCollaboratore(String notaId, String collaboratore) {
+        // Implementazione dummy
+    }
+
+    public void updateNota(String id, String nuovoTitolo, String nuovoContenuto, String owner) {
+        for (Nota n : note) {
+            if (n.getId().equals(id) && n.getOwner().equals(owner)) {
+                n.setTitolo(nuovoTitolo);
+                n.setContenuto(nuovoContenuto);
+            }
         }
-        noteRepo.put(nota.getId(), nota);
     }
 
-    public Nota getNota(String id) {
-        return noteRepo.get(id);
+    public List<Nota> findByOwner(String owner) {
+        List<Nota> result = new ArrayList<>();
+        for (Nota n : note) {
+            if (n.getOwner().equals(owner)) result.add(n);
+        }
+        return result;
     }
 
-    public void aggiungiNota(Nota nota) {
-        noteRepo.put(nota.getId(), nota);
+    public Nota findByIdAndOwner(String id, String owner) {
+        for (Nota n : note) {
+            if (n.getId().equals(id) && n.getOwner().equals(owner)) return n;
+        }
+        return null;
     }
 }
