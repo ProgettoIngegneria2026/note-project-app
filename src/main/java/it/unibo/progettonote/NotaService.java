@@ -56,6 +56,7 @@ public class NotaService {
         nota.setContenuto(nuovoContenuto);
         nota.setDataUltimaModifica(new Date());
 
+        DatabaseCore.commit();   // 🔧 aggiunto commit per sicurezza
         return true;
     }
 
@@ -67,38 +68,38 @@ public class NotaService {
         return repo.values()
                 .stream()
                 .filter(n -> n.getCollaboratori() != null &&
-                             n.getCollaboratori().contains(utente))
+                        n.getCollaboratori().contains(utente))
                 .collect(Collectors.toList());
     }
-    // Metodo per aggiornare una nota esistente (UC5)
-public boolean updateNota(String idNota, String nuovoTitolo, String nuovoContenuto, String proprietario) {
 
-    ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
-    Nota nota = repo.get(idNota);
+    // Aggiorna una nota esistente
+    public boolean updateNota(String idNota, String nuovoTitolo, String nuovoContenuto, String proprietario) {
 
-    if (nota == null) {
-        return false;
-    }
+        ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
+        Nota nota = repo.get(idNota);
 
-    if (!nota.getProprietario().equals(proprietario)) {
-        return false;
-    }
+        if (nota == null) {
+            return false;
+        }
 
-    try {
-        ValidatoreNote.valida(nuovoContenuto);
+        if (!nota.getProprietario().equals(proprietario)) {
+            return false;
+        }
 
-        nota.setTitolo(nuovoTitolo);
-        nota.setContenuto(nuovoContenuto);
-        nota.setDataUltimaModifica(new Date());
+        try {
+            ValidatoreNote.valida(nuovoContenuto);
 
-        DatabaseCore.commit();
-        return true;
+            nota.setTitolo(nuovoTitolo);
+            nota.setContenuto(nuovoContenuto);
+            nota.setDataUltimaModifica(new Date());
 
-    } catch (IllegalArgumentException e) {
-        return false;
+            repo.put(idNota, nota);
+
+            DatabaseCore.commit();
+            return true;
+
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
-}
-
-
-
