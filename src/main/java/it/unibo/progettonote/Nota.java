@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Nota implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private String id;
@@ -15,7 +16,8 @@ public class Nota implements Serializable {
     private Date dataCreazione;
     private Date dataUltimaModifica;
     private String proprietario;
-    private String idCartella; // può essere null
+    private String idCartella;
+
     private List<VersioneNota> versioni = new ArrayList<>();
     // utenti con cui la nota è condivisa
    private List<String> collaboratori = new ArrayList<>();
@@ -32,47 +34,89 @@ public class Nota implements Serializable {
         this.dataUltimaModifica = new Date();
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public String getTitolo() { return titolo; }
-    public void setTitolo(String titolo) { this.titolo = titolo; }
-
-    public String getContenuto() { return contenuto; }
-    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
-
-    public Date getDataCreazione() { return dataCreazione; }
-    public void setDataCreazione(Date date) { this.dataCreazione = date; }
-
-    public Date getDataUltimaModifica() { return dataUltimaModifica; }
-    public void setDataUltimaModifica(Date date) { this.dataUltimaModifica = date; }
-
-    public String getProprietario() { return proprietario; }
-    public void setProprietario(String proprietario) { this.proprietario = proprietario; }
-
-    public String getIdCartella() { return idCartella; }
-    public void setIdCartella(String idCartella) { this.idCartella = idCartella; }
-
-    public List<VersioneNota> getVersioni() { return versioni; }
-    public void setVersioni(List<VersioneNota> versioni) { this.versioni = versioni; }
-    public List<String> getCollaboratori() {
-    return collaboratori;
-}
-
-public void setCollaboratori(List<String> collaboratori) {
-    this.collaboratori = collaboratori;
-}
-public void aggiungiCollaboratore(String username) {
-    if (!collaboratori.contains(username)) {
-        collaboratori.add(username);
+    public String getId() {
+        return id;
     }
-}
 
-public void rimuoviCollaboratore(String username) {
-    collaboratori.remove(username);
-}
-public boolean puoAccedere(String username) {
-    return proprietario.equals(username) || collaboratori.contains(username);
-}
+    public void setId(String id) {
+        this.id = id;
+    }
 
+    public String getTitolo() {
+        return titolo;
+    }
+
+    public void setTitolo(String titolo) {
+        this.titolo = titolo;
+    }
+
+    public String getContenuto() {
+        return contenuto;
+    }
+
+    public void setContenuto(String contenuto) {
+        this.contenuto = contenuto;
+    }
+
+    public Date getDataCreazione() {
+        return dataCreazione;
+    }
+
+    public void setDataCreazione(Date dataCreazione) {
+        this.dataCreazione = dataCreazione;
+    }
+
+    public Date getDataUltimaModifica() {
+        return dataUltimaModifica;
+    }
+
+    public void setDataUltimaModifica(Date dataUltimaModifica) {
+        this.dataUltimaModifica = dataUltimaModifica;
+    }
+
+    public String getProprietario() {
+        return proprietario;
+    }
+
+    public void setProprietario(String proprietario) {
+        this.proprietario = proprietario;
+    }
+
+    public String getIdCartella() {
+        return idCartella;
+    }
+
+    public void setIdCartella(String idCartella) {
+        this.idCartella = idCartella;
+    }
+
+    public List<VersioneNota> getVersioni() {
+        return versioni;
+    }
+
+    public void setVersioni(List<VersioneNota> versioni) {
+        this.versioni = versioni;
+    }
+
+    public List<String> getCollaboratori() {
+        return collaboratori;
+    }
+
+    public void aggiungiCollaboratore(String email) {
+        if (!collaboratori.contains(email)) {
+            collaboratori.add(email);
+        }
+    }
+
+    public void rimuoviCollaboratore(String email) {
+        collaboratori.remove(email);
+    }
+
+    public boolean puoAccedere(String utente) {
+        return proprietario.equals(utente) || collaboratori.contains(utente);
+    }
+
+    public boolean puoModificare(String utente) {
+        return proprietario.equals(utente) || collaboratori.contains(utente);
+    }
 }
