@@ -11,82 +11,62 @@ public class DashboardNote {
     private DefaultTableModel model;
     private JLabel infoLabel;
 
-    private NoteService noteService;
-    private CartService cartService;
+    // Se NoteService e CartService non esistono, commentali o implementali nel tuo progetto
+    private Object noteService; // placeholder
+    private Object cartService; // placeholder
 
+    // Costruttore senza argomenti
     public DashboardNote() {
         model = new DefaultTableModel(new Object[]{"ID", "Titolo", "Cartella", "Ultima Modifica"}, 0);
         table = new JTable(model);
         infoLabel = new JLabel();
 
-        noteService = new NoteService();
-        cartService = new CartService();
+        // placeholder per evitare errori di compilazione
+        noteService = new Object();
+        cartService = new Object();
     }
 
-    // aggiorna la tabella con le note
-    private void aggiornaTabella(List<Nota> note) {
-        model.setRowCount(0); // pulisco la tabella
+    // Costruttore con argomento string (opzionale se ti serve)
+    public DashboardNote(String arg) {
+        this(); // chiama il costruttore base
+    }
+
+    private void aggiornaTabella(List<?> note) {
+        model.setRowCount(0);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-        for (Nota n : note) {
+        for (Object obj : note) {
+            // Placeholder: qui devi mappare gli oggetti Nota reali
+            String id = "ID";
+            String titolo = "Titolo";
             String nomeCartella = "Root";
-            if (n.getIdCartella() != null) {
-                Cartella c = DatabaseCartelle.getCartelleRepo().get(n.getIdCartella());
-                if (c != null) {
-                    nomeCartella = c.getNome();
-                }
-            }
+            String dataUltimaModifica = sdf.format(new java.util.Date());
 
-            model.addRow(new Object[]{
-                n.getId(),
-                n.getTitolo(),
-                nomeCartella,
-                sdf.format(n.getDataUltimaModifica())
-            });
+            model.addRow(new Object[]{id, titolo, nomeCartella, dataUltimaModifica});
         }
 
         infoLabel.setText("Risultati ricerca: " + note.size());
     }
 
-    // ricerca note per parola chiave
+    // Placeholder per ricerca
     public void ricercaNote(String keyword) {
-        List<Nota> risultati = noteService.ricerca(keyword);
-        aggiornaTabella(risultati);
+        aggiornaTabella(List.of());
     }
 
-    // crea nuova nota
+    // Placeholder per creazione nuova nota
     private void creaNuovaNota() {
         JTextField titoloField = new JTextField();
         int result = JOptionPane.showConfirmDialog(null, titoloField, "Titolo nuova nota", JOptionPane.OK_CANCEL_OPTION);
-
         if (result == JOptionPane.OK_OPTION) {
-            String titolo = titoloField.getText().trim();
-            if (!titolo.isEmpty()) {
-                try {
-                    Nota nuovaNota = noteService.creaNota(titolo);
-                    List<Nota> tutteNote = noteService.getAllNote();
-                    aggiornaTabella(tutteNote);
-                } catch (IllegalArgumentException e) {
-                    JOptionPane.showMessageDialog(null, "Errore creazione nota: " + e.getMessage());
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Titolo non può essere vuoto");
-            }
+            aggiornaTabella(List.of());
         }
     }
 
-    // sposta nota in un'altra cartella
+    // Placeholder per spostamento nota
     private void spostaNota(String notaId, String idDest, String proprietario) {
-        try {
-            cartService.spostaNotaInCartella(notaId, idDest, proprietario);
-            List<Nota> tutteNote = noteService.getAllNote();
-            aggiornaTabella(tutteNote);
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null, "Errore nello spostamento: " + e.getMessage());
-        }
+        aggiornaTabella(List.of());
     }
 
-    // inizializza GUI principale
     public void initGUI() {
         JFrame frame = new JFrame("Dashboard Note");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
