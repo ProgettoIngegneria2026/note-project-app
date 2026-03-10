@@ -4,34 +4,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
-
 public class RicercaService {
+    private final NotaService notaService;
 
-    /**
-     * Filtra le note per testo (titolo o contenuto) e proprietario.
-     */
-    public List<Nota> cercaPerParolaChiave(String query, String proprietario) {
-        String q = query.toLowerCase().trim();
-        return DatabaseNote.getNoteRepo().values().stream()
-                .filter(n -> n.getProprietario().equals(proprietario))
-                .filter(n -> n.getTitolo().toLowerCase().contains(q) ||
-                        n.getContenuto().toLowerCase().contains(q))
+    public RicercaService(NotaService notaService) {
+        this.notaService = notaService;
+    }
+
+    public List<Nota> cercaPerParolaChiave(String owner, String parola) {
+        return notaService.getNoteRepo().stream()
+                .filter(n -> n.getOwner().equals(owner))
+                .filter(n -> n.getTitolo().contains(parola) || n.getContenuto().contains(parola))
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Filtra le note per intervallo di date.
-     */
-    public List<Nota> cercaPerData(Date inizio, Date fine, String proprietario) {
-        return DatabaseNote.getNoteRepo().values().stream()
-                .filter(n -> n.getProprietario().equals(proprietario))
-                .filter(n -> {
-                    Date d = n.getDataUltimaModifica();
-                    if (d == null) return false;
-                    // Controlla se d è compresa tra inizio e fine
-                    return !d.before(inizio) && !d.after(fine);
-                })
+    public List<Nota> cercaPerData(Date inizio, Date fine, String owner) {
+        return notaService.getNoteRepo().stream()
+                .filter(n -> n.getOwner().equals(owner))
+                .filter(n -> !n.getDataUltimaModifica().before(inizio) && !n.getDataUltimaModifica().after(fine))
                 .collect(Collectors.toList());
     }
 }

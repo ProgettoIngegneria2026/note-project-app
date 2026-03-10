@@ -1,42 +1,27 @@
 package it.unibo.progettonote;
 
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class NavigazioneService {
+    private final NotaService notaService;
 
-    public List<Nota> listaNoteUtenteOrdinate(String proprietario) {
-        if (proprietario == null || proprietario.trim().isEmpty()) {
-            throw new IllegalArgumentException("Proprietario non valido");
-        }
-
-        List<Nota> note = DatabaseNote.findByOwner(proprietario);
-
-        note.sort(Comparator.comparing(
-                Nota::getDataUltimaModifica,
-                Comparator.nullsLast(Date::compareTo)
-        ).reversed());
-
-        return note;
+    public NavigazioneService(NotaService notaService) {
+        this.notaService = notaService;
     }
 
-    public Nota dettaglioNota(String notaId, String proprietario) {
-    if (notaId == null || notaId.trim().isEmpty()) {
-        throw new IllegalArgumentException("notaId non valido");
-    }
-    if (proprietario == null || proprietario.trim().isEmpty()) {
-        throw new IllegalArgumentException("proprietario non valido");
-    }
-
-    Nota n = DatabaseNote.findByIdAndOwner(notaId, proprietario);
-
-    if (n == null) {
-        throw new IllegalArgumentException("Nota inesistente o non appartenente all'utente");
+    public List<Nota> listaNoteUtenteOrdinate(String owner) {
+        return notaService.getNoteRepo().stream()
+                .filter(n -> n.getOwner().equals(owner))
+                .sorted((a,b) -> b.getDataUltimaModifica().compareTo(a.getDataUltimaModifica()))
+                .collect(Collectors.toList());
     }
 
-    return n;
-}
-
-
+    public Nota dettaglioNota(String id, String owner) {
+        Optional<Nota> n = notaService.getNoteRepo().stream()
+                .filter(note -> note.getId().equals(id) && note.getOwner().equals(owner))
+                .findFirst();
+        return n.orElse(null);
+    }
 }

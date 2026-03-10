@@ -1,84 +1,40 @@
 package it.unibo.progettonote;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Nota {
-
     private String id;
     private String titolo;
     private String contenuto;
-    private String proprietario;
-    private List<String> collaboratori; // lista di utenti collaboratori
-    private String idCartella; // opzionale, cartella dove è salvata
-    private Date dataUltimaModifica;
+    private String owner;
+    private boolean solaLettura; // nuovo campo
+    private Set<String> collaboratori;
 
-    public Nota() {
-        this.collaboratori = new ArrayList<>();
-    }
-    public Nota(String titolo, String contenuto, String proprietario) {
-    this(); // chiama il costruttore vuoto per inizializzare collaboratori
-    this.titolo = titolo;
-    this.contenuto = contenuto;
-    this.proprietario = proprietario;
-    this.dataUltimaModifica = new Date(); // opzionale, data corrente
-}
-
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
+    public Nota(String id, String titolo, String contenuto, String owner) {
         this.id = id;
-    }
-
-    public String getTitolo() {
-        return titolo;
-    }
-
-    public void setTitolo(String titolo) {
         this.titolo = titolo;
-    }
-
-    public String getContenuto() {
-        return contenuto;
-    }
-
-    public void setContenuto(String contenuto) {
         this.contenuto = contenuto;
+        this.owner = owner;
+        this.solaLettura = false;
+        this.collaboratori = new HashSet<>();
     }
 
-    public String getProprietario() {
-        return proprietario;
-    }
+    // --- getter e setter ---
+    public String getId() { return id; }
+    public String getTitolo() { return titolo; }
+    public void setTitolo(String titolo) { this.titolo = titolo; }
+    public String getContenuto() { return contenuto; }
+    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
+    public String getOwner() { return owner; }
+    public boolean isSolaLettura() { return solaLettura; }
+    public void setSolaLettura(boolean solaLettura) { this.solaLettura = solaLettura; }
 
-    public void setProprietario(String proprietario) {
-        this.proprietario = proprietario;
-    }
+    public Set<String> getCollaboratori() { return collaboratori; }
+    public void aggiungiCollaboratore(String user) { collaboratori.add(user); }
 
-    public List<String> getCollaboratori() {
-        return collaboratori;
-    }
-
-    public void setCollaboratori(List<String> collaboratori) {
-        this.collaboratori = collaboratori;
-    }
-
-    public String getIdCartella() {
-        return idCartella;
-    }
-
-    public void setIdCartella(String idCartella) {
-        this.idCartella = idCartella;
-    }
-
-    public Date getDataUltimaModifica() {
-        return dataUltimaModifica;
-    }
-
-    public void setDataUltimaModifica(Date dataUltimaModifica) {
-        this.dataUltimaModifica = dataUltimaModifica;
+    // --- logica controllo permessi ---
+    public boolean isModificabile(String user) {
+        return owner.equals(user) && !solaLettura;
     }
 }
