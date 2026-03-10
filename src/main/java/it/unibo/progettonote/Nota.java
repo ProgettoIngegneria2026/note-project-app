@@ -19,7 +19,9 @@ public class Nota implements Serializable {
     private String idCartella;
 
     private List<VersioneNota> versioni = new ArrayList<>();
-    private List<String> collaboratori = new ArrayList<>();
+    // utenti con cui la nota è condivisa
+   private List<String> collaboratori = new ArrayList<>();
+
 
     public Nota() {}
 
