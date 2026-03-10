@@ -1,18 +1,27 @@
 package it.unibo.progettonote;
 
+import java.util.Date;
+import java.util.List;
+
 public class RicercaService {
 
-    private NotaService notaService;
+    private final NotaService notaService;
 
     public RicercaService(NotaService notaService) {
         this.notaService = notaService;
     }
 
-    public void cerca(String id) {
-        Nota n = notaService.getNoteRepo().get(id);
-        if(n != null)
-            System.out.println("Trovata nota: " + n.getTitolo());
-        else
-            System.out.println("Nota non trovata");
+    public List<Nota> cercaPerParolaChiave(String parola, String userId) {
+        return notaService.getNoteRepo().stream()
+                .filter(n -> n.getTesto().contains(parola) && n.getOwner().equals(userId))
+                .toList();
+    }
+
+    public List<Nota> cercaPerData(Date from, Date to, String userId) {
+        return notaService.getNoteRepo().stream()
+                .filter(n -> !n.getDataCreazione().before(from)
+                          && !n.getDataCreazione().after(to)
+                          && n.getOwner().equals(userId))
+                .toList();
     }
 }

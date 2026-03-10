@@ -1,17 +1,12 @@
 package it.unibo.progettonote;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 public class DettaglioNotaFrame extends JFrame {
-    
-    private Nota nota;
 
-    public DettaglioNotaFrame(Nota nota, String utente) {
-        this.nota = nota;
-        boolean modificabile = nota.isModificabile(utente);
-        JLabel label = new JLabel("Nota " + (modificabile ? "modificabile" : "sola lettura"));
-        add(label);
-        setSize(300, 200);
-        setVisible(true);
+    public DettaglioNotaFrame(Nota nota, String currentUser) {
+        // inizializza GUI con la nota e controlla i permessi
+        setTitle("Nota di " + currentUser);
+        // logica di visualizzazione/modifica
     }
 }

@@ -1,38 +1,38 @@
 package it.unibo.progettonote;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 public class DatabaseNote {
 
-    private static Map<String, Nota> noteRepo = new HashMap<>();
+    private static ConcurrentNavigableMap<String, Nota> noteRepo;
 
-    public static Map<String, Nota> getNoteRepo() {
+    public static ConcurrentNavigableMap<String, Nota> getNoteRepo() {
+        if (noteRepo == null) {
+            noteRepo = DatabaseCore.getDB()
+                    .treeMap("notes", org.mapdb.Serializer.STRING, org.mapdb.Serializer.JAVA)
+                    .createOrOpen();
+        }
         return noteRepo;
     }
 
-    public void aggiungiNota(Nota nota) {
-        if (nota.getId() == null) {
-            nota.setId(String.valueOf(noteRepo.size() + 1));
-        }
-        noteRepo.put(nota.getId(), nota);
-    }
-
     public static void close() {
-        noteRepo.clear();
+        noteRepo = null;
     }
 
-    public List<Nota> findByOwner(String owner) {
-        return noteRepo.values().stream()
-                .filter(n -> n.getOwner().equals(owner))
-                .collect(Collectors.toList());
+    public static List<Nota> findByOwner(String proprietario) {
+        List<Nota> res = new ArrayList<>();
+        for (Nota n : getNoteRepo().values()) {
+            if (proprietario.equals(n.getProprietario())) {
+                res.add(n);
+            }
+        }
+        return res;
     }
 
-    public Nota findByIdAndOwner(String id, String owner) {
-        Nota n = noteRepo.get(id);
-        if (n != null && n.getOwner().equals(owner)) return n;
-        return null;
+    public static Nota findByIdAndOwner(String id, String proprietario) {
+        Nota n = getNoteRepo().get(id);
+        if (n == null) return null;
+        return proprietario.equals(n.getProprietario()) ? n : null;
     }
 }

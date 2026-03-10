@@ -1,19 +1,16 @@
 package it.unibo.progettonote;
 
+import java.util.List;
+
 public class GestioneUtenti {
 
-    private DatabaseUtenti dbUtenti;
+    private final DatabaseUtenti dbUtenti;
 
-    public GestioneUtenti() {
-        dbUtenti = new DatabaseUtenti();
+    public GestioneUtenti(DatabaseUtenti dbUtenti) {
+        this.dbUtenti = dbUtenti;
     }
 
-    // Registra nuovo utente
-    public void registra(String username, String password, String email) {
-        dbUtenti.getUtentiRepo().put(username, password + "|" + email);
-    }
-
-    public DatabaseUtenti getDbUtenti() {
-        return dbUtenti;
+    public List<Utente> listaUtenti() {
+        return dbUtenti.getUtentiRepo();
     }
 }

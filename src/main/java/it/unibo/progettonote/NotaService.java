@@ -1,45 +1,34 @@
 package it.unibo.progettonote;
 
-import java.util.*;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 public class NotaService {
-    private final List<Nota> note = new ArrayList<>();
 
-    public Nota creaNuovaNota(String id, String titolo, String contenuto, String owner) {
-        Nota n = new Nota(id, titolo, contenuto, owner);
-        note.add(n);
-        return n;
+    public boolean creaNuovaNota(String titolo, String contenuto, String proprietario) {
+        if (titolo == null || contenuto == null || proprietario == null) return false;
+        if (contenuto.length() > 280) return false;
+
+        String idUnivoco = UUID.randomUUID().toString();
+        Nota nuovaNota = new Nota(titolo, contenuto, proprietario);
+        nuovaNota.setId(idUnivoco);
+
+        ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
+        repo.put(idUnivoco, nuovaNota);
+        DatabaseCore.commit();
+        return true;
     }
 
-    public void aggiungiCollaboratore(String notaId, String collaboratore) {
-        // Implementazione dummy
+    public void salvaNota(Nota nota, String user) {
+        DatabaseNote.getNoteRepo().put(nota.getId(), nota);
     }
 
-    public void rimuoviCollaboratore(String notaId, String collaboratore) {
-        // Implementazione dummy
+    public java.util.List<Nota> getNoteRepo() {
+        return new java.util.ArrayList<>(DatabaseNote.getNoteRepo().values());
     }
 
-    public void updateNota(String id, String nuovoTitolo, String nuovoContenuto, String owner) {
-        for (Nota n : note) {
-            if (n.getId().equals(id) && n.getOwner().equals(owner)) {
-                n.setTitolo(nuovoTitolo);
-                n.setContenuto(nuovoContenuto);
-            }
-        }
-    }
-
-    public List<Nota> findByOwner(String owner) {
-        List<Nota> result = new ArrayList<>();
-        for (Nota n : note) {
-            if (n.getOwner().equals(owner)) result.add(n);
-        }
-        return result;
-    }
-
-    public Nota findByIdAndOwner(String id, String owner) {
-        for (Nota n : note) {
-            if (n.getId().equals(id) && n.getOwner().equals(owner)) return n;
-        }
-        return null;
+    public boolean updateNota(String idNota, String titolo, String contenuto, String proprietario) {
+        return creaNuovaNota(titolo, contenuto, proprietario);
     }
 }

@@ -1,22 +1,46 @@
 package it.unibo.progettonote;
 
-public class Nota {
+import java.io.Serializable;
+import java.util.*;
+
+public class Nota implements Serializable {
+
     private String id;
     private String titolo;
     private String contenuto;
-    private String owner;
+    private Date dataCreazione;
+    private Date dataUltimaModifica;
+    private String proprietario;
+    private String idCartella; 
 
-    public Nota(String id, String titolo, String contenuto, String owner) {
-        this.id = id;
+    private boolean solaLettura;
+    private Set<String> collaboratori = new HashSet<>();
+
+    public Nota() {}
+
+    public Nota(String titolo, String contenuto, String proprietario) {
+        this.id = java.util.UUID.randomUUID().toString();
         this.titolo = titolo;
         this.contenuto = contenuto;
-        this.owner = owner;
+        this.proprietario = proprietario;
+        this.dataCreazione = new Date();
+        this.dataUltimaModifica = new Date();
     }
 
     public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getTitolo() { return titolo; }
     public void setTitolo(String titolo) { this.titolo = titolo; }
     public String getContenuto() { return contenuto; }
     public void setContenuto(String contenuto) { this.contenuto = contenuto; }
-    public String getOwner() { return owner; }
+    public String getProprietario() { return proprietario; }
+    public Date getDataCreazione() { return dataCreazione; }
+    public Date getDataUltimaModifica() { return dataUltimaModifica; }
+    public String getIdCartella() { return idCartella; }
+    public void setIdCartella(String idCartella) { this.idCartella = idCartella; }
+    public Set<String> getCollaboratori() { return collaboratori; }
+
+    public boolean isModificabile(String user) {
+        return proprietario.equals(user) && !solaLettura;
+    }
 }

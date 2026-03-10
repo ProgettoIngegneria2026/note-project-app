@@ -1,19 +1,21 @@
 package it.unibo.progettonote;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 public class DatabaseUtenti {
 
-    private Map<String, String> utentiRepo = new HashMap<>();
+    private static ConcurrentNavigableMap<String, Utente> userRepo;
 
-    // Restituisce repository utenti
-    public Map<String, String> getUtentiRepo() {
-        return utentiRepo;
+    public static ConcurrentNavigableMap<String, Utente> getUserRepo() {
+        if (userRepo == null) {
+            userRepo = DatabaseCore.getDB()
+                .treeMap("users", org.mapdb.Serializer.STRING, org.mapdb.Serializer.JAVA)
+                .createOrOpen();
+        }
+        return userRepo;
     }
 
-    // Chiude database (placeholder)
-    public void close() {
-        utentiRepo.clear();
+    public static void close() {
+        userRepo = null;
     }
 }

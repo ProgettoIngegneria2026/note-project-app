@@ -1,27 +1,23 @@
 package it.unibo.progettonote;
 
-import java.util.*;
+import java.util.List;
 
 public class GestioneCartelleService {
-    private final List<Cartella> cartelle = new ArrayList<>();
 
-    public void creaCartella(String nome, String owner) {
-        cartelle.add(new Cartella(nome, owner));
+    private final DatabaseCartelle dbCartelle;
+
+    public GestioneCartelleService(DatabaseCartelle dbCartelle) {
+        this.dbCartelle = dbCartelle;
     }
 
-    public void rinominaCartella(String vecchioNome, String nuovoNome, String owner) {
-        for (Cartella c : cartelle) {
-            if (c.getNome().equals(vecchioNome) && c.getOwner().equals(owner)) {
-                c.setNome(nuovoNome);
-            }
-        }
+    public List<Cartella> getCartelle(String userId) {
+        return dbCartelle.getCartelleByOwner(userId);
     }
 
-    public List<Cartella> listaCartelle(String owner) {
-        List<Cartella> result = new ArrayList<>();
-        for (Cartella c : cartelle) {
-            if (c.getOwner().equals(owner)) result.add(c);
+    public void eliminaCartellaSeVuota(String cartellaId, String userId) {
+        Cartella c = dbCartelle.getCartella(cartellaId);
+        if (c != null && c.getNote().isEmpty() && c.getOwner().equals(userId)) {
+            dbCartelle.removeCartella(cartellaId);
         }
-        return result;
     }
 }

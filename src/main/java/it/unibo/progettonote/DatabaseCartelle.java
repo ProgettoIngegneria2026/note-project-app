@@ -1,46 +1,42 @@
 package it.unibo.progettonote;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.stream.Collectors;
 
 public class DatabaseCartelle {
 
-    private Map<String, Cartella> cartelleRepo = new HashMap<>();
+    private static ConcurrentNavigableMap<String, Cartella> cartelleRepo;
 
-    public List<Cartella> findByOwner(String owner) {
-        List<Cartella> result = new ArrayList<>();
-        for (Cartella c : cartelleRepo.values()) {
-            if (c.getProprietario().equals(owner)) {
-                result.add(c);
-            }
+    public static ConcurrentNavigableMap<String, Cartella> getCartelleRepo() {
+        if (cartelleRepo == null) {
+            cartelleRepo = DatabaseCore.getDB()
+                    .treeMap("cartelle", org.mapdb.Serializer.STRING, org.mapdb.Serializer.JAVA)
+                    .createOrOpen();
         }
-        return result;
+        return cartelleRepo;
     }
 
-    public boolean existsByNameAndOwner(String nome, String owner) {
-        return cartelleRepo.values().stream()
-                .anyMatch(c -> c.getNome().equals(nome) && c.getProprietario().equals(owner));
+    public static void close() {
+        cartelleRepo = null;
     }
 
-    public Cartella findByIdAndOwner(String id, String owner) {
-        Cartella c = cartelleRepo.get(id);
-        if (c != null && c.getProprietario().equals(owner)) {
+    public static List<Cartella> findByOwner(String proprietario) {
+        return getCartelleRepo().values().stream()
+                .filter(c -> c.getProprietario().equals(proprietario))
+                .collect(Collectors.toList());
+    }
+
+    public static Cartella findByIdAndOwner(String id, String proprietario) {
+        Cartella c = getCartelleRepo().get(id);
+        if (c != null && c.getProprietario().equals(proprietario)) {
             return c;
         }
         return null;
     }
 
-    public void aggiungiCartella(Cartella c) {
-        cartelleRepo.put(c.getId(), c);
-    }
-
-    public void rimuoviCartella(Cartella c) {
-        cartelleRepo.remove(c.getId());
-    }
-
-    public Map<String, Cartella> getCartelleRepo() {
-        return cartelleRepo;
+    public static boolean existsByNameAndOwner(String nome, String proprietario) {
+        return getCartelleRepo().values().stream()
+                .anyMatch(c -> c.getNome().equals(nome) && c.getProprietario().equals(proprietario));
     }
 }
