@@ -70,5 +70,34 @@ public class NotaService {
                              n.getCollaboratori().contains(utente))
                 .collect(Collectors.toList());
     }
+    // Metodo per aggiornare una nota esistente (UC5)
+public boolean updateNota(String idNota, String nuovoTitolo, String nuovoContenuto, String proprietario) {
 
+    ConcurrentNavigableMap<String, Nota> repo = DatabaseNote.getNoteRepo();
+    Nota nota = repo.get(idNota);
+
+    if (nota == null) {
+        return false;
+    }
+
+    if (!nota.getProprietario().equals(proprietario)) {
+        return false;
+    }
+
+    try {
+        ValidatoreNote.valida(nuovoContenuto);
+
+        nota.setTitolo(nuovoTitolo);
+        nota.setContenuto(nuovoContenuto);
+        nota.setDataUltimaModifica(new Date());
+
+        DatabaseCore.commit();
+        return true;
+
+    } catch (IllegalArgumentException e) {
+        return false;
+    }
 }
+
+
+
