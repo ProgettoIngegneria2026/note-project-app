@@ -2,6 +2,7 @@ package it.unibo.progettonote;
 
 import org.junit.Before;
 import org.junit.Test;
+import java.util.UUID;
 import java.util.Date;
 import java.util.List;
 import static org.junit.Assert.*;
@@ -44,6 +45,8 @@ public class RicercaESpostamentoTest {
         // 2. Creazione Note
         Nota n1 = new Nota("Studiare SWENG", "Pattern e Git", EMAIL);
         Nota n2 = new Nota("Spesa", "Pane e Latte", EMAIL);
+        n1.setId(UUID.randomUUID().toString()); // Assegna un ID univoco alla nota
+        n2.setId(UUID.randomUUID().toString()); // Assegna un ID univoco alla nota
         DatabaseNote.getNoteRepo().put(n1.getId(), n1);
         DatabaseNote.getNoteRepo().put(n2.getId(), n2);
         DatabaseCore.commit();
@@ -56,16 +59,18 @@ public class RicercaESpostamentoTest {
         assertEquals("L'ID cartella della nota deve corrispondere", c1.getId(), notaSpostata.getIdCartella());
 
         // 4. TEST UC7: Ricerca per Testo
+        // Con il RicercaService corretto, la ricerca deve trovare la nota anche se spostata in una cartella.
         List<Nota> risultatiTesto = ricercaService.cercaPerParolaChiave("SWENG", EMAIL);
-        assertEquals("Dovrebbe trovare esattamente 1 nota", 1, risultatiTesto.size());
-        assertTrue(risultatiTesto.get(0).getTitolo().contains("SWENG"));
+        assertEquals("Dovrebbe trovare esattamente 1 nota contenente 'SWENG'", 1, risultatiTesto.size());
+        assertEquals("La nota trovata deve essere quella corretta", n1.getId(), risultatiTesto.get(0).getId());
 
         // 5. TEST UC7: Filtro Date
         // Creiamo un range che include il momento attuale
         Date inizio = new Date(System.currentTimeMillis() - 5000); // 5 secondi fa
         Date fine = new Date(System.currentTimeMillis() + 5000);   // tra 5 secondi
 
+        // La ricerca per data, ora corretta, deve trovare entrambe le note create nel range di tempo.
         List<Nota> risultatiData = ricercaService.cercaPerData(inizio, fine, EMAIL);
-        assertEquals("Entrambe le note sono state create ora, quindi deve trovarne 2", 2, risultatiData.size());
+        assertEquals("La ricerca per data deve trovare entrambe le note", 2, risultatiData.size());
     }
 }

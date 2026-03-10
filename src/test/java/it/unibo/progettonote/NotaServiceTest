@@ -1,0 +1,43 @@
+package it.unibo.progettonote;
+
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class NotaServiceTest {
+
+    private NotaService notaService;
+
+    @Before
+    public void setUp() {
+        // Usa il database in memoria per non sporcare i dati reali
+        DatabaseCore.enableTestMode();
+        DatabaseNote.getNoteRepo().clear();
+        notaService = new NotaService();
+    }
+
+    @Test
+    public void testCreaNuovaNota() {
+        boolean creata = notaService.creaNuovaNota("Titolo", "Contenuto", "user1");
+        
+        assertTrue(creata);
+        assertEquals(1, DatabaseNote.getNoteRepo().size());
+        
+        Nota salvata = DatabaseNote.getNoteRepo().values().iterator().next();
+        assertEquals("Titolo", salvata.getTitolo());
+        assertEquals("user1", salvata.getProprietario());
+    }
+
+    @Test
+    public void testUpdateNota() {
+        notaService.creaNuovaNota("Vecchio", "Vecchio Contenuto", "user1");
+        String idNota = DatabaseNote.getNoteRepo().keySet().iterator().next();
+
+        boolean aggiornata = notaService.updateNota(idNota, "Nuovo", "Nuovo Contenuto", "user1");
+        
+        assertTrue(aggiornata);
+        Nota notaModificata = DatabaseNote.getNoteRepo().get(idNota);
+        assertEquals("Nuovo", notaModificata.getTitolo());
+        assertEquals("Nuovo Contenuto", notaModificata.getContenuto());
+    }
+}
