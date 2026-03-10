@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Nota implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private String id;
@@ -15,8 +16,10 @@ public class Nota implements Serializable {
     private Date dataCreazione;
     private Date dataUltimaModifica;
     private String proprietario;
-    private String idCartella; // può essere null
+    private String idCartella;
+
     private List<VersioneNota> versioni = new ArrayList<>();
+    private List<String> collaboratori = new ArrayList<>();
 
     public Nota() {}
 
@@ -29,27 +32,89 @@ public class Nota implements Serializable {
         this.dataUltimaModifica = new Date();
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getTitolo() { return titolo; }
-    public void setTitolo(String titolo) { this.titolo = titolo; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getContenuto() { return contenuto; }
-    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
+    public String getTitolo() {
+        return titolo;
+    }
 
-    public Date getDataCreazione() { return dataCreazione; }
-    public void setDataCreazione(Date date) { this.dataCreazione = date; }
+    public void setTitolo(String titolo) {
+        this.titolo = titolo;
+    }
 
-    public Date getDataUltimaModifica() { return dataUltimaModifica; }
-    public void setDataUltimaModifica(Date date) { this.dataUltimaModifica = date; }
+    public String getContenuto() {
+        return contenuto;
+    }
 
-    public String getProprietario() { return proprietario; }
-    public void setProprietario(String proprietario) { this.proprietario = proprietario; }
+    public void setContenuto(String contenuto) {
+        this.contenuto = contenuto;
+    }
 
-    public String getIdCartella() { return idCartella; }
-    public void setIdCartella(String idCartella) { this.idCartella = idCartella; }
+    public Date getDataCreazione() {
+        return dataCreazione;
+    }
 
-    public List<VersioneNota> getVersioni() { return versioni; }
-    public void setVersioni(List<VersioneNota> versioni) { this.versioni = versioni; }
+    public void setDataCreazione(Date dataCreazione) {
+        this.dataCreazione = dataCreazione;
+    }
+
+    public Date getDataUltimaModifica() {
+        return dataUltimaModifica;
+    }
+
+    public void setDataUltimaModifica(Date dataUltimaModifica) {
+        this.dataUltimaModifica = dataUltimaModifica;
+    }
+
+    public String getProprietario() {
+        return proprietario;
+    }
+
+    public void setProprietario(String proprietario) {
+        this.proprietario = proprietario;
+    }
+
+    public String getIdCartella() {
+        return idCartella;
+    }
+
+    public void setIdCartella(String idCartella) {
+        this.idCartella = idCartella;
+    }
+
+    public List<VersioneNota> getVersioni() {
+        return versioni;
+    }
+
+    public void setVersioni(List<VersioneNota> versioni) {
+        this.versioni = versioni;
+    }
+
+    public List<String> getCollaboratori() {
+        return collaboratori;
+    }
+
+    public void aggiungiCollaboratore(String email) {
+        if (!collaboratori.contains(email)) {
+            collaboratori.add(email);
+        }
+    }
+
+    public void rimuoviCollaboratore(String email) {
+        collaboratori.remove(email);
+    }
+
+    public boolean puoAccedere(String utente) {
+        return proprietario.equals(utente) || collaboratori.contains(utente);
+    }
+
+    public boolean puoModificare(String utente) {
+        return proprietario.equals(utente) || collaboratori.contains(utente);
+    }
 }

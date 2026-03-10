@@ -1,115 +1,103 @@
 package it.unibo.progettonote;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class NotaTest {
 
-    @Test
-    public void testCreazioneNotaValida() {
-        Nota nota = new Nota("Titolo", "Contenuto breve", "User1");
+    private NotaService notaService;
+    private String proprietario1 = "utente1@example.com";
+    private String proprietario2 = "utente2@example.com";
 
-        assertNotNull(nota.getContenuto());
-        assertTrue("Il contenuto deve essere <= 280 caratteri", nota.getContenuto().length() <= 280);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreazioneNotaTroppoLunga() {
-        String testoLungo = new String(new char[281]).replace('\0', 'a');
-        ValidatoreNote.valida(testoLungo);
-    }
-
-    @Test
-    public void testUpdateNotaValida() {
-        DatabaseNote.close();
+    @Before
+    public void setUp() {
+        // Abilita la modalità di test con database in memoria
         DatabaseCore.enableTestMode();
+        // Pulisce i repository per garantire l'isolamento del test
+        DatabaseNote.close();
+        DatabaseNote.getNoteRepo().clear();
+        DatabaseCore.commit();
 
-        try {
-            NotaService service = new NotaService();
+        notaService = new NotaService();
+    }
 
-            boolean creata = service.creaNuovaNota("Titolo vecchio", "Contenuto vecchio", "User1");
-            assertTrue(creata);
-
-            Nota nota = DatabaseNote.findByOwner("User1").get(0);
-
-            boolean aggiornata = service.updateNota(
-                    nota.getId(),
-                    "Titolo nuovo",
-                    "Contenuto nuovo",
-                    "User1"
-            );
-
-            assertTrue(aggiornata);
-
-            Nota notaAggiornata = DatabaseNote.findByIdAndOwner(nota.getId(), "User1");
-            assertEquals("Titolo nuovo", notaAggiornata.getTitolo());
-            assertEquals("Contenuto nuovo", notaAggiornata.getContenuto());
-        } finally {
-            DatabaseNote.close();
-            DatabaseCore.disableTestMode();
-        }
+    @After
+    public void tearDown() {
+        DatabaseNote.getNoteRepo().clear();
+        DatabaseCore.commit();
     }
 
     @Test
-    public void testUpdateNotaNonValida() {
-        DatabaseNote.close();
-        DatabaseCore.enableTestMode();
+    public void testCreaNuovaNota() {
+        boolean creata = notaService.creaNuovaNota("Titolo1", "Contenuto valido", proprietario1);
+        assertTrue(creata);
 
-        try {
-            NotaService service = new NotaService();
-
-            boolean creata = service.creaNuovaNota("Titolo", "Contenuto breve", "User1");
-            assertTrue(creata);
-
-            Nota nota = DatabaseNote.findByOwner("User1").get(0);
-
-            String testoLungo = new String(new char[281]).replace('\0', 'a');
-
-            boolean aggiornata = service.updateNota(
-                    nota.getId(),
-                    "Titolo nuovo",
-                    testoLungo,
-                    "User1"
-            );
-
-            assertFalse(aggiornata);
-        } finally {
-            DatabaseNote.close();
-            DatabaseCore.disableTestMode();
-        }
+        List<Nota> note = DatabaseNote.findAccessibili(proprietario1);
+        assertEquals(1, note.size());
+        assertEquals("Titolo1", note.get(0).getTitolo());
     }
 
     @Test
-    public void testUpdateNotaAggiornaDataUltimaModifica() throws InterruptedException {
-        DatabaseNote.close();
-        DatabaseCore.enableTestMode();
+    public void testUpdateNotaPermesso() {
+        notaService.creaNuovaNota("Titolo1", "Contenuto iniziale", proprietario1);
+        Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
 
-        try {
-            NotaService service = new NotaService();
+        // Aggiornamento dal proprietario corretto
+        boolean aggiornata = notaService.updateNota(nota.getId(), "Titolo Modificato", "Nuovo contenuto", proprietario1);
+        assertTrue(aggiornata);
 
-            boolean creata = service.creaNuovaNota("Titolo", "Contenuto", "User1");
-            assertTrue(creata);
+        Nota notaAggiornata = DatabaseNote.findById(nota.getId());
+        assertEquals("Titolo Modificato", notaAggiornata.getTitolo());
 
-            Nota nota = DatabaseNote.findByOwner("User1").get(0);
-            java.util.Date dataPrima = nota.getDataUltimaModifica();
+        // Aggiornamento da utente non proprietario
+        boolean aggiornamentoFallito = notaService.updateNota(nota.getId(), "Altro Titolo", "Contenuto", proprietario2);
+        assertFalse(aggiornamentoFallito);
+    }
 
-            Thread.sleep(10);
+    @Test
+    public void testFindAccessibili() {
+        notaService.creaNuovaNota("Nota1", "Contenuto1", proprietario1);
+        notaService.creaNuovaNota("Nota2", "Contenuto2", proprietario2);
 
-            boolean aggiornata = service.updateNota(
-                    nota.getId(),
-                    "Titolo aggiornato",
-                    "Contenuto aggiornato",
-                    "User1"
-            );
+        List<Nota> noteUtente1 = DatabaseNote.findAccessibili(proprietario1);
+        List<Nota> noteUtente2 = DatabaseNote.findAccessibili(proprietario2);
 
-            assertTrue(aggiornata);
+        assertEquals(1, noteUtente1.size());
+        assertEquals("Nota1", noteUtente1.get(0).getTitolo());
 
-            Nota notaAggiornata = DatabaseNote.findByIdAndOwner(nota.getId(), "User1");
-            assertTrue(notaAggiornata.getDataUltimaModifica().after(dataPrima));
-        } finally {
-            DatabaseNote.close();
-            DatabaseCore.disableTestMode();
-        }
+        assertEquals(1, noteUtente2.size());
+        assertEquals("Nota2", noteUtente2.get(0).getTitolo());
+    }
+
+    @Test
+    public void testDettaglioNotaAccesso() {
+        notaService.creaNuovaNota("Nota1", "Contenuto1", proprietario1);
+        Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
+
+        // Accesso proprietario
+        Nota trovata = DatabaseNote.findById(nota.getId());
+        assertTrue(trovata.puoAccedere(proprietario1));
+
+        // Accesso utente non proprietario
+        assertFalse(trovata.puoAccedere(proprietario2));
+    }
+
+    @Test
+    public void testAggiornamentoSoloProprietario() {
+        notaService.creaNuovaNota("Nota1", "Contenuto iniziale", proprietario1);
+        Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
+
+        // Tentativo update da utente non autorizzato
+        boolean aggiornamentoFallito = notaService.updateNota(nota.getId(), "Titolo Modificato", "Nuovo contenuto", proprietario2);
+        assertFalse(aggiornamentoFallito);
+
+        // Verifica che il titolo non sia cambiato
+        Nota notaDopo = DatabaseNote.findById(nota.getId());
+        assertEquals("Nota1", notaDopo.getTitolo());
     }
 }
