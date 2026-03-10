@@ -3,7 +3,6 @@ package it.unibo.progettonote;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class DashboardNote {
@@ -16,7 +15,6 @@ public class DashboardNote {
     private CartService cartService;
 
     public DashboardNote() {
-        // inizializzazione componenti GUI
         model = new DefaultTableModel(new Object[]{"ID", "Titolo", "Cartella", "Ultima Modifica"}, 0);
         table = new JTable(model);
         infoLabel = new JLabel();
@@ -25,9 +23,9 @@ public class DashboardNote {
         cartService = new CartService();
     }
 
-    // aggiorna la tabella con i risultati
+    // aggiorna la tabella con le note
     private void aggiornaTabella(List<Nota> note) {
-        model.setRowCount(0);  // pulisco la tabella
+        model.setRowCount(0); // pulisco la tabella
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         for (Nota n : note) {
@@ -64,11 +62,13 @@ public class DashboardNote {
         if (result == JOptionPane.OK_OPTION) {
             String titolo = titoloField.getText().trim();
             if (!titolo.isEmpty()) {
-                Nota nuovaNota = noteService.creaNota(titolo);
-
-                // aggiorno tabella
-                List<Nota> tutteNote = noteService.getAllNote();
-                aggiornaTabella(tutteNote);
+                try {
+                    Nota nuovaNota = noteService.creaNota(titolo);
+                    List<Nota> tutteNote = noteService.getAllNote();
+                    aggiornaTabella(tutteNote);
+                } catch (IllegalArgumentException e) {
+                    JOptionPane.showMessageDialog(null, "Errore creazione nota: " + e.getMessage());
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Titolo non può essere vuoto");
             }
@@ -79,17 +79,14 @@ public class DashboardNote {
     private void spostaNota(String notaId, String idDest, String proprietario) {
         try {
             cartService.spostaNotaInCartella(notaId, idDest, proprietario);
-
-            // ricarico note aggiornate
             List<Nota> tutteNote = noteService.getAllNote();
             aggiornaTabella(tutteNote);
-
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(null, "Errore nello spostamento: " + e.getMessage());
         }
     }
 
-    // esempio metodo per inizializzare GUI (aggiungi bottoni ecc.)
+    // inizializza GUI principale
     public void initGUI() {
         JFrame frame = new JFrame("Dashboard Note");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
