@@ -20,7 +20,8 @@ public class NotaTest {
         DatabaseCore.enableTestMode();
         // Pulisce i repository per garantire l'isolamento del test
         DatabaseNote.close();
-        DatabaseNote.getNoteRepo().clear();
+        DatabaseNote.close();
+        DatabaseCore.enableTestMode();
         DatabaseCore.commit();
 
         notaService = new NotaService();
@@ -28,7 +29,8 @@ public class NotaTest {
 
     @After
     public void tearDown() {
-        DatabaseNote.getNoteRepo().clear();
+        DatabaseNote.close();
+        DatabaseCore.enableTestMode();
         DatabaseCore.commit();
     }
 
@@ -99,5 +101,28 @@ public class NotaTest {
         // Verifica che il titolo non sia cambiato
         Nota notaDopo = DatabaseNote.findById(nota.getId());
         assertEquals("Nota1", notaDopo.getTitolo());
+    }
+    @Test
+    public void testRipristinaVersione() {
+        DatabaseCore.enableTestMode();
+        DatabaseNote.close();
+        DatabaseCore.enableTestMode();
+        
+        NotaService service = new NotaService();
+        service.creaNuovaNota("Titolo", "Testo Originale", "user1");
+        
+        Nota nota = DatabaseNote.findAccessibili("user1").get(0);
+        String idNota = nota.getId();
+        
+        // Creo due nuove versioni
+        service.aggiungiVersione(nota, "Modifica 1"); // Diventa Versione 1
+        service.aggiungiVersione(nota, "Modifica 2"); // Diventa Versione 2
+        DatabaseNote.getNoteRepo().put(idNota, nota);
+        
+        // Ripristino la Versione 1
+        boolean ripristinato = service.ripristinaVersione(idNota, 1, "user1");
+        
+        assertTrue(ripristinato);
+        assertEquals("Modifica 1", DatabaseNote.findById(idNota).getContenuto());
     }
 }

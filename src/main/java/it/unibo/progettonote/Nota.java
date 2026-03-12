@@ -1,14 +1,10 @@
 package it.unibo.progettonote;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Nota implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // AGGIUNGI QUESTA RIGA
 
     private String id;
     private String titolo;
@@ -16,17 +12,18 @@ public class Nota implements Serializable {
     private Date dataCreazione;
     private Date dataUltimaModifica;
     private String proprietario;
-    private String idCartella;
+    private String idCartella; 
 
+    private boolean solaLettura;
+    private Set<String> collaboratori = new HashSet<>();
+    
+    // NUOVO CONTENITORE STORICO
     private List<VersioneNota> versioni = new ArrayList<>();
-    // utenti con cui la nota è condivisa
-   private List<String> collaboratori = new ArrayList<>();
-
 
     public Nota() {}
 
     public Nota(String titolo, String contenuto, String proprietario) {
-        this.id = UUID.randomUUID().toString();
+        this.id = java.util.UUID.randomUUID().toString();
         this.titolo = titolo;
         this.contenuto = contenuto;
         this.proprietario = proprietario;
@@ -34,89 +31,45 @@ public class Nota implements Serializable {
         this.dataUltimaModifica = new Date();
     }
 
-    public String getId() {
-        return id;
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getTitolo() { return titolo; }
+    public void setTitolo(String titolo) { this.titolo = titolo; }
+    public String getContenuto() { return contenuto; }
+    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
+    public String getProprietario() { return proprietario; }
+    public Date getDataCreazione() { return dataCreazione; }
+    public Date getDataUltimaModifica() { return dataUltimaModifica; }
+    public void setDataUltimaModifica(Date dataUltimaModifica) { this.dataUltimaModifica = dataUltimaModifica; }
+    public String getIdCartella() { return idCartella; }
+    public void setIdCartella(String idCartella) { this.idCartella = idCartella; }
+    public Set<String> getCollaboratori() { return collaboratori; }
+
+    public List<VersioneNota> getVersioni() { return versioni; }
+    public void setVersioni(List<VersioneNota> versioni) { this.versioni = versioni; }
+
+    public boolean isModificabile(String user) {
+        return proprietario.equals(user) && !solaLettura;
+    }
+    
+    public boolean puoModificare(String user) {
+        return isModificabile(user);
+    }
+    public void aggiungiCollaboratore(String collaboratore) {
+        if (this.collaboratori == null) {
+            this.collaboratori = new java.util.HashSet<>();
+        }
+        this.collaboratori.add(collaboratore);
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitolo() {
-        return titolo;
-    }
-
-    public void setTitolo(String titolo) {
-        this.titolo = titolo;
-    }
-
-    public String getContenuto() {
-        return contenuto;
-    }
-
-    public void setContenuto(String contenuto) {
-        this.contenuto = contenuto;
-    }
-
-    public Date getDataCreazione() {
-        return dataCreazione;
-    }
-
-    public void setDataCreazione(Date dataCreazione) {
-        this.dataCreazione = dataCreazione;
-    }
-
-    public Date getDataUltimaModifica() {
-        return dataUltimaModifica;
-    }
-
-    public void setDataUltimaModifica(Date dataUltimaModifica) {
-        this.dataUltimaModifica = dataUltimaModifica;
-    }
-
-    public String getProprietario() {
-        return proprietario;
-    }
-
-    public void setProprietario(String proprietario) {
-        this.proprietario = proprietario;
-    }
-
-    public String getIdCartella() {
-        return idCartella;
-    }
-
-    public void setIdCartella(String idCartella) {
-        this.idCartella = idCartella;
-    }
-
-    public List<VersioneNota> getVersioni() {
-        return versioni;
-    }
-
-    public void setVersioni(List<VersioneNota> versioni) {
-        this.versioni = versioni;
-    }
-
-    public List<String> getCollaboratori() {
-        return collaboratori;
-    }
-
-    public void aggiungiCollaboratore(String email) {
-        if (!collaboratori.contains(email)) {
-            collaboratori.add(email);
+    public void rimuoviCollaboratore(String collaboratore) {
+        if (this.collaboratori != null) {
+            this.collaboratori.remove(collaboratore);
         }
     }
 
-    public void rimuoviCollaboratore(String email) {
-        collaboratori.remove(email);
-    }
-
     public boolean puoAccedere(String utente) {
-        return proprietario.equals(utente) || collaboratori.contains(utente);
-    }
-
-    public boolean puoModificare(String utente) {
-        return proprietario.equals(utente) || collaboratori.contains(utente);
+        return this.proprietario.equals(utente) || 
+               (this.collaboratori != null && this.collaboratori.contains(utente));
     }
 }

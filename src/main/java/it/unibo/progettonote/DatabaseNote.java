@@ -11,15 +11,11 @@ public class DatabaseNote {
     private static ConcurrentNavigableMap<String, Nota> noteRepo;
 
     public static ConcurrentNavigableMap<String, Nota> getNoteRepo() {
-
         if (noteRepo == null) {
-
             noteRepo = DatabaseCore.getDB()
                     .treeMap("notes", Serializer.STRING, Serializer.JAVA)
                     .createOrOpen();
-
         }
-
         return noteRepo;
     }
 
@@ -28,15 +24,16 @@ public class DatabaseNote {
     }
 
     public static List<Nota> findAccessibili(String user) {
-
         List<Nota> res = new ArrayList<>();
 
         for (Nota n : getNoteRepo().values()) {
+            // Controlli di sicurezza (evitano i NullPointerException)
+            boolean isOwner = n.getProprietario() != null && n.getProprietario().equals(user);
+            boolean isCollab = n.getCollaboratori() != null && n.getCollaboratori().contains(user);
 
-            if (n.getProprietario().equals(user) || n.getCollaboratori().contains(user)) {
+            if (isOwner || isCollab) {
                 res.add(n);
             }
-
         }
 
         return res;
