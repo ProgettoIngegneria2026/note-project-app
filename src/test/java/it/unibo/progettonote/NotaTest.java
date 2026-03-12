@@ -20,7 +20,8 @@ public class NotaTest {
         DatabaseCore.enableTestMode();
         // Pulisce i repository per garantire l'isolamento del test
         DatabaseNote.close();
-        DatabaseNote.getNoteRepo().clear();
+        DatabaseNote.close();
+        DatabaseCore.enableTestMode();
         DatabaseCore.commit();
 
         notaService = new NotaService();
@@ -28,7 +29,8 @@ public class NotaTest {
 
     @After
     public void tearDown() {
-        DatabaseNote.getNoteRepo().clear();
+        DatabaseNote.close();
+        DatabaseCore.enableTestMode();
         DatabaseCore.commit();
     }
 
@@ -103,7 +105,8 @@ public class NotaTest {
     @Test
     public void testRipristinaVersione() {
         DatabaseCore.enableTestMode();
-        DatabaseNote.getNoteRepo().clear();
+        DatabaseNote.close();
+        DatabaseCore.enableTestMode();
         
         NotaService service = new NotaService();
         service.creaNuovaNota("Titolo", "Testo Originale", "user1");
