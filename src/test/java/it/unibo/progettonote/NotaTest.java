@@ -4,6 +4,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import it.unibo.progettonote.client.Nota;
+import it.unibo.progettonote.server.DatabaseCore;
+import it.unibo.progettonote.server.DatabaseNote;
+import it.unibo.progettonote.server.NotaService;
+
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -13,6 +18,7 @@ public class NotaTest {
     private NotaService notaService;
     private String proprietario1 = "utente1@example.com";
     private String proprietario2 = "utente2@example.com";
+    
 
     @Before
     public void setUp() {

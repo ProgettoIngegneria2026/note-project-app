@@ -12,7 +12,11 @@
             <groupId>org.gwtproject</groupId>
             <artifactId>gwt-user</artifactId>
             <version>2.10.0</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gwtproject</groupId>
+            <artifactId>gwt-dev</artifactId>
+            <version>2.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.mapdb</groupId>
@@ -31,4 +35,29 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+<build>
+        <plugins>
+            <plugin>
+                <groupId>net.ltgt.gwt.maven</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <moduleName>it.unibo.progettonote.ProgettoNote</moduleName>
+                    <warDir>${project.basedir}/src/main/webapp</warDir>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>
