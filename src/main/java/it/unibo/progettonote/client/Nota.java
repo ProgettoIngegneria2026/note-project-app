@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class Nota implements Serializable {
     private String id;
@@ -25,12 +24,12 @@ public class Nota implements Serializable {
     private List<String> collaboratori;
 
     public Nota() { 
-        // RISOLVE IL PROBLEMA "ID nota non valido"
-        this.id = UUID.randomUUID().toString(); 
+        // Genera un ID univoco compatibile con GWT (JavaScript)
+        this.id = "nota_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 10000); 
         
         this.permessi = new HashMap<>(); 
         this.collaboratori = new ArrayList<>();
-        this.versioni = new ArrayList<>(); // Evita NullPointerException
+        this.versioni = new ArrayList<>();
         this.dataCreazione = new Date();
         this.dataModifica = new Date();
     }
