@@ -1,28 +1,29 @@
-package it.unibo.progettonote.client;
+package it.unibo.progettonote.client; // <-- CAMBIA QUESTO IN BASE AL TUO PACKAGE ORIGINALE
 
 import java.io.Serializable;
 import java.util.Date;
 
 public class VersioneNota implements Serializable {
-    public VersioneNota() {} 
-    private static final long serialVersionUID = 1L;
-    
     private int numeroVersione;
     private String contenuto;
-    private String autore;
-    private Date data;
+    private String autoreModifica;
+    private Date dataModifica;
 
-    // Costruttore richiesto da NotaService (int, String, String, Date)
-    public VersioneNota(int numeroVersione, String contenuto, String autore, Date data) {
+    public VersioneNota() {}
+
+    public VersioneNota(int numeroVersione, String contenuto, String autoreModifica, Date dataModifica) {
         this.numeroVersione = numeroVersione;
         this.contenuto = contenuto;
-        this.autore = autore;
-        this.data = data;
+        this.autoreModifica = autoreModifica;
+        this.dataModifica = dataModifica;
     }
 
-    // Getter
     public int getNumeroVersione() { return numeroVersione; }
+    public void setNumeroVersione(int numeroVersione) { this.numeroVersione = numeroVersione; }
     public String getContenuto() { return contenuto; }
-    public String getAutore() { return autore; }
-    public Date getData() { return data; }
+    public void setContenuto(String contenuto) { this.contenuto = contenuto; }
+    public String getAutoreModifica() { return autoreModifica; }
+    public void setAutoreModifica(String autoreModifica) { this.autoreModifica = autoreModifica; }
+    public Date getDataModifica() { return dataModifica; }
+    public void setDataModifica(Date dataModifica) { this.dataModifica = dataModifica; }
 }

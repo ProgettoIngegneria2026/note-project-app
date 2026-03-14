@@ -1,4 +1,4 @@
-package it.unibo.progettonote.client;
+package it.unibo.progettonote.client; // <-- CAMBIA QUESTO IN BASE AL TUO PACKAGE ORIGINALE
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class Nota implements Serializable {
     private String id;
@@ -19,13 +20,17 @@ public class Nota implements Serializable {
     private List<VersioneNota> versioni;
     private Map<String, String> permessi; // email -> "READ" o "WRITE"
 
-    // Campi ripristinati per compatibilità con i tuoi test e vecchi service
+    // Campi ripristinati per compatibilità con i tuoi test
     private String idCartella;
     private List<String> collaboratori;
 
     public Nota() { 
+        // RISOLVE IL PROBLEMA "ID nota non valido"
+        this.id = UUID.randomUUID().toString(); 
+        
         this.permessi = new HashMap<>(); 
         this.collaboratori = new ArrayList<>();
+        this.versioni = new ArrayList<>(); // Evita NullPointerException
         this.dataCreazione = new Date();
         this.dataModifica = new Date();
     }
@@ -56,19 +61,16 @@ public class Nota implements Serializable {
     public Map<String, String> getPermessi() { return permessi; }
     public void setPermessi(Map<String, String> permessi) { this.permessi = permessi; }
 
-    // --- METODI DI COMPATIBILITA' ---
-
+    // --- METODI DI COMPATIBILITÀ ---
     public String getIdCartella() { return idCartella; }
     public void setIdCartella(String idCartella) { this.idCartella = idCartella; }
     
     public List<String> getCollaboratori() { return collaboratori; }
     public void setCollaboratori(List<String> collaboratori) { this.collaboratori = collaboratori; }
 
-    // Alias per i test che usano il vecchio nome del metodo
     public Date getDataUltimaModifica() { return dataModifica; }
     public void setDataUltimaModifica(Date dataModifica) { this.dataModifica = dataModifica; }
 
-    // Metodo ripristinato per NavigazioneService e NotaTest
     public boolean puoAccedere(String emailUtente) {
         if (emailUtente == null) return false;
         if (emailUtente.equals(proprietario)) return true;
