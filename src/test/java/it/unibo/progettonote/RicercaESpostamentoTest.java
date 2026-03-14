@@ -2,6 +2,17 @@ package it.unibo.progettonote;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import it.unibo.progettonote.client.Cartella;
+import it.unibo.progettonote.client.Nota;
+import it.unibo.progettonote.server.DatabaseCartelle;
+import it.unibo.progettonote.server.DatabaseCore;
+import it.unibo.progettonote.server.DatabaseNote;
+import it.unibo.progettonote.server.DatabaseUtenti;
+import it.unibo.progettonote.server.GestioneCartelleService;
+import it.unibo.progettonote.server.NotaCartellaService;
+import it.unibo.progettonote.server.RicercaService;
+
 import java.util.Date;
 import java.util.List;
 import static org.junit.Assert.*;
