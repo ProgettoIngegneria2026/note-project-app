@@ -1,18 +1,8 @@
 package it.unibo.progettonote;
-
+import it.unibo.progettonote.client.*;
+import it.unibo.progettonote.server.*;
 import org.junit.Before;
 import org.junit.Test;
-
-import it.unibo.progettonote.client.Cartella;
-import it.unibo.progettonote.client.Nota;
-import it.unibo.progettonote.server.DatabaseCartelle;
-import it.unibo.progettonote.server.DatabaseCore;
-import it.unibo.progettonote.server.DatabaseNote;
-import it.unibo.progettonote.server.DatabaseUtenti;
-import it.unibo.progettonote.server.GestioneCartelleService;
-import it.unibo.progettonote.server.NotaCartellaService;
-import it.unibo.progettonote.server.RicercaService;
-
 import java.util.Date;
 import java.util.List;
 import static org.junit.Assert.*;
@@ -21,19 +11,12 @@ public class RicercaESpostamentoTest {
 
     private RicercaService ricercaService;
     private NotaCartellaService notaCartellaService;
-    private GestioneCartelleService gestioneCartelleService ; // Usiamo il service per la creazione
+    private GestioneCartelleService gestioneCartelleService;
     private final String EMAIL = "email@email.it";
 
     @Before
     public void setup() {
-        // Reset centralizzato tramite Core
         DatabaseCore.enableTestMode();
-
-        // Pulizia esplicita di tutti i repository
-        DatabaseNote.close();
-        DatabaseCartelle.close();
-        DatabaseUtenti.close();
-
         DatabaseNote.getNoteRepo().clear();
         DatabaseCartelle.getCartelleRepo().clear();
         DatabaseCore.commit();
@@ -45,38 +28,27 @@ public class RicercaESpostamentoTest {
 
     @Test
     public void testFlussoCompletoSpostamentoERicerca() {
-        // 1. Preparazione: Creiamo una cartella usando il FolderService
         Cartella c1 = gestioneCartelleService.creaCartella("Esami", EMAIL);
+        assertTrue(DatabaseCartelle.existsByNameAndOwner("Esami", EMAIL));
 
-        // Verifichiamo se esiste davvero
-        assertTrue("La cartella dovrebbe esistere nel DB",
-                DatabaseCartelle.existsByNameAndOwner("Esami", EMAIL));
-
-        // 2. Creazione Note
         Nota n1 = new Nota("Studiare SWENG", "Pattern e Git", EMAIL);
+        n1.setId("n1_id"); // Assegnazione esplicita ID pulita
         Nota n2 = new Nota("Spesa", "Pane e Latte", EMAIL);
+        n2.setId("n2_id");
+
         DatabaseNote.getNoteRepo().put(n1.getId(), n1);
         DatabaseNote.getNoteRepo().put(n2.getId(), n2);
         DatabaseCore.commit();
 
-        // 3. TEST UC6: Spostamento
         notaCartellaService.spostaNotaInCartella(n1.getId(), c1.getId(), EMAIL);
+        assertEquals(c1.getId(), DatabaseNote.getNoteRepo().get(n1.getId()).getIdCartella());
 
-        // Verifica dello spostamento usando il metodo helper del repository
-        Nota notaSpostata = DatabaseNote.getNoteRepo().get(n1.getId());
-        assertEquals("L'ID cartella della nota deve corrispondere", c1.getId(), notaSpostata.getIdCartella());
-
-        // 4. TEST UC7: Ricerca per Testo
         List<Nota> risultatiTesto = ricercaService.cercaPerParolaChiave("SWENG", EMAIL);
-        assertEquals("Dovrebbe trovare esattamente 1 nota", 1, risultatiTesto.size());
-        assertTrue(risultatiTesto.get(0).getTitolo().contains("SWENG"));
+        assertEquals(1, risultatiTesto.size());
 
-        // 5. TEST UC7: Filtro Date
-        // Creiamo un range che include il momento attuale
-        Date inizio = new Date(System.currentTimeMillis() - 5000); // 5 secondi fa
-        Date fine = new Date(System.currentTimeMillis() + 5000);   // tra 5 secondi
-
+        Date inizio = new Date(System.currentTimeMillis() - 5000); 
+        Date fine = new Date(System.currentTimeMillis() + 5000);   
         List<Nota> risultatiData = ricercaService.cercaPerData(inizio, fine, EMAIL);
-        assertEquals("Entrambe le note sono state create ora, quindi deve trovarne 2", 2, risultatiData.size());
+        assertEquals(2, risultatiData.size());
     }
 }

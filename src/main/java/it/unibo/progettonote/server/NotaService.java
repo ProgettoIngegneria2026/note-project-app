@@ -12,9 +12,13 @@ public class NotaService {
         return repo != null ? repo : RAM_REPO;
     }
 
-    // Mantenuto per i test
-    public boolean creaNuovaNota(String titolo, String contenuto, String proprietario) {
-        return creaNuovaNota(titolo, contenuto, proprietario, null);
+    public void aggiungiVersione(Nota nota, String testoDaSalvare) {
+        List<VersioneNota> storico = nota.getVersioni();
+        if (storico == null) storico = new ArrayList<>();
+        
+        int num = storico.size() + 1;
+        storico.add(new VersioneNota(num, testoDaSalvare, nota.getProprietario(), new Date()));
+        nota.setVersioni(storico);
     }
 
     public boolean creaNuovaNota(String titolo, String contenuto, String proprietario, String idCartella) {
@@ -23,35 +27,32 @@ public class NotaService {
             Nota nuovaNota = new Nota(titolo, contenuto, proprietario);
             nuovaNota.setId(titolo);
             nuovaNota.setIdCartella(idCartella);
+            
+            // Versione 1 generata alla creazione
+            aggiungiVersione(nuovaNota, contenuto);
+
             getRepo().put(titolo, nuovaNota); 
             try { DatabaseCore.commit(); } catch(Exception e){}
             return true;
         } catch (Exception e) { return false; }
     }
 
-    public void aggiungiVersione(Nota nota, String testoDaSalvare) {
-        List<VersioneNota> storico = nota.getVersioni();
-        if (storico == null) storico = new ArrayList<>();
-        int num = storico.size() + 1;
-        storico.add(new VersioneNota(num, testoDaSalvare, nota.getProprietario(), new Date()));
-        nota.setVersioni(storico);
-    }
-
-    // Mantenuto per i test
-    public boolean updateNota(String idNota, String nuovoTitolo, String nuovoContenuto, String utente) {
-        return updateNota(idNota, nuovoTitolo, nuovoContenuto, utente, null);
-    }
-
-    public boolean updateNota(String idNota, String nuovoTitolo, String nuovoContenuto, String utente, String idCartella) {
+    public String updateNota(String idNota, String nuovoTitolo, String nuovoContenuto, String utente, String idCartella, Date dataLettura) {
         Nota nota = getRepo().get(idNota);
-        if (nota == null) return false;
-        if (nuovoContenuto != null && nuovoContenuto.length() > 280) return false;
+        if (nota == null || (nuovoContenuto != null && nuovoContenuto.length() > 280)) return "ERRORE";
 
         boolean canEdit = utente.equals(nota.getProprietario()) || "WRITE".equals(nota.getPermessi().get(utente));
-        if (!canEdit) return false;
+        if (!canEdit) return "ERRORE";
 
+        if (nota.getDataModifica() != null && dataLettura != null) {
+            if ((nota.getDataModifica().getTime() / 1000) > (dataLettura.getTime() / 1000)) {
+                return "CONFLITTO";
+            }
+        }
+
+        // Aggiunge una versione ad ogni modifica del testo
         if (!nota.getContenuto().equals(nuovoContenuto)) {
-            aggiungiVersione(nota, nota.getContenuto());
+            aggiungiVersione(nota, nuovoContenuto);
         }
 
         nota.setTitolo(nuovoTitolo);
@@ -65,7 +66,8 @@ public class NotaService {
         }
         getRepo().put(nuovoTitolo, nota);
         try { DatabaseCore.commit(); } catch(Exception e){}
-        return true;
+        
+        return "OK";
     }
 
     public boolean ripristinaVersione(String idNota, int num, String utente) {
@@ -76,7 +78,7 @@ public class NotaService {
 
         for (VersioneNota v : nota.getVersioni()) {
             if (v.getNumeroVersione() == num) {
-                aggiungiVersione(nota, nota.getContenuto());
+                // SOVRASCRIVE SOLO IL TESTO, NIENTE GENERAZIONE DI NUOVE VERSIONI
                 nota.setContenuto(v.getContenuto());
                 nota.setDataModifica(new Date());
                 try { DatabaseCore.commit(); } catch(Exception e){}

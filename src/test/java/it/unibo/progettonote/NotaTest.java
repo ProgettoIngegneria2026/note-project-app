@@ -16,33 +16,26 @@ import static org.junit.Assert.*;
 public class NotaTest {
 
     private NotaService notaService;
-    private String proprietario1 = "utente1@example.com";
-    private String proprietario2 = "utente2@example.com";
-    
+    private final String proprietario1 = "utente1@example.com";
+    private final String proprietario2 = "utente2@example.com";
 
     @Before
     public void setUp() {
-        // Abilita la modalità di test con database in memoria
         DatabaseCore.enableTestMode();
-        // Pulisce i repository per garantire l'isolamento del test
-        DatabaseNote.close();
-        DatabaseNote.close();
-        DatabaseCore.enableTestMode();
+        DatabaseNote.getNoteRepo().clear();
         DatabaseCore.commit();
-
         notaService = new NotaService();
     }
 
     @After
     public void tearDown() {
-        DatabaseNote.close();
-        DatabaseCore.enableTestMode();
+        DatabaseNote.getNoteRepo().clear();
         DatabaseCore.commit();
     }
 
     @Test
     public void testCreaNuovaNota() {
-        boolean creata = notaService.creaNuovaNota("Titolo1", "Contenuto valido", proprietario1);
+        boolean creata = notaService.creaNuovaNota("Titolo1", "Contenuto valido", proprietario1, null);
         assertTrue(creata);
 
         List<Nota> note = DatabaseNote.findAccessibili(proprietario1);
@@ -52,25 +45,23 @@ public class NotaTest {
 
     @Test
     public void testUpdateNotaPermesso() {
-        notaService.creaNuovaNota("Titolo1", "Contenuto iniziale", proprietario1);
+        notaService.creaNuovaNota("Titolo1", "Contenuto iniziale", proprietario1, null);
         Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
 
-        // Aggiornamento dal proprietario corretto
-        boolean aggiornata = notaService.updateNota(nota.getId(), "Titolo Modificato", "Nuovo contenuto", proprietario1);
-        assertTrue(aggiornata);
+        String stato = notaService.updateNota(nota.getId(), "Titolo Modificato", "Nuovo contenuto", proprietario1, null, nota.getDataModifica());
+        assertEquals("OK", stato);
 
-        Nota notaAggiornata = DatabaseNote.findById(nota.getId());
+        Nota notaAggiornata = DatabaseNote.findById("Titolo Modificato");
         assertEquals("Titolo Modificato", notaAggiornata.getTitolo());
 
-        // Aggiornamento da utente non proprietario
-        boolean aggiornamentoFallito = notaService.updateNota(nota.getId(), "Altro Titolo", "Contenuto", proprietario2);
-        assertFalse(aggiornamentoFallito);
+        String statoFallito = notaService.updateNota("Titolo Modificato", "Altro Titolo", "Contenuto", proprietario2, null, notaAggiornata.getDataModifica());
+        assertEquals("ERRORE", statoFallito);
     }
 
     @Test
     public void testFindAccessibili() {
-        notaService.creaNuovaNota("Nota1", "Contenuto1", proprietario1);
-        notaService.creaNuovaNota("Nota2", "Contenuto2", proprietario2);
+        notaService.creaNuovaNota("Nota1", "Contenuto1", proprietario1, null);
+        notaService.creaNuovaNota("Nota2", "Contenuto2", proprietario2, null);
 
         List<Nota> noteUtente1 = DatabaseNote.findAccessibili(proprietario1);
         List<Nota> noteUtente2 = DatabaseNote.findAccessibili(proprietario2);
@@ -84,49 +75,44 @@ public class NotaTest {
 
     @Test
     public void testDettaglioNotaAccesso() {
-        notaService.creaNuovaNota("Nota1", "Contenuto1", proprietario1);
+        notaService.creaNuovaNota("Nota1", "Contenuto1", proprietario1, null);
         Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
 
-        // Accesso proprietario
         Nota trovata = DatabaseNote.findById(nota.getId());
         assertTrue(trovata.puoAccedere(proprietario1));
-
-        // Accesso utente non proprietario
         assertFalse(trovata.puoAccedere(proprietario2));
     }
 
     @Test
     public void testAggiornamentoSoloProprietario() {
-        notaService.creaNuovaNota("Nota1", "Contenuto iniziale", proprietario1);
+        notaService.creaNuovaNota("Nota1", "Contenuto iniziale", proprietario1, null);
         Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
 
-        // Tentativo update da utente non autorizzato
-        boolean aggiornamentoFallito = notaService.updateNota(nota.getId(), "Titolo Modificato", "Nuovo contenuto", proprietario2);
-        assertFalse(aggiornamentoFallito);
+        String statoFallito = notaService.updateNota(nota.getId(), "Titolo Modificato", "Nuovo contenuto", proprietario2, null, nota.getDataModifica());
+        assertEquals("ERRORE", statoFallito);
 
-        // Verifica che il titolo non sia cambiato
         Nota notaDopo = DatabaseNote.findById(nota.getId());
         assertEquals("Nota1", notaDopo.getTitolo());
     }
-    @Test
+
+ @Test
     public void testRipristinaVersione() {
-        DatabaseCore.enableTestMode();
-        DatabaseNote.close();
-        DatabaseCore.enableTestMode();
-        
-        NotaService service = new NotaService();
-        service.creaNuovaNota("Titolo", "Testo Originale", "user1");
-        
-        Nota nota = DatabaseNote.findAccessibili("user1").get(0);
+        notaService.creaNuovaNota("Titolo", "Testo Originale", proprietario1, null);
+        Nota nota = DatabaseNote.findAccessibili(proprietario1).get(0);
         String idNota = nota.getId();
         
-        // Creo due nuove versioni
-        service.aggiungiVersione(nota, "Modifica 1"); // Diventa Versione 1
-        service.aggiungiVersione(nota, "Modifica 2"); // Diventa Versione 2
-        DatabaseNote.getNoteRepo().put(idNota, nota);
+        // La creazione genera in automatico la V1 ("Testo Originale").
+        // Aggiungiamo altre due versioni per il test:
+        notaService.aggiungiVersione(nota, "Modifica 1"); // Diventa V2
+        notaService.aggiungiVersione(nota, "Modifica 2"); // Diventa V3
         
-        // Ripristino la Versione 1
-        boolean ripristinato = service.ripristinaVersione(idNota, 1, "user1");
+        // Simuliamo che il testo attuale della nota sia l'ultimo inserito
+        nota.setContenuto("Modifica 2");
+        DatabaseNote.getNoteRepo().put(idNota, nota);
+        DatabaseCore.commit();
+        
+        // Vogliamo tornare a "Modifica 1", che ora corrisponde alla Versione 2
+        boolean ripristinato = notaService.ripristinaVersione(idNota, 2, proprietario1);
         
         assertTrue(ripristinato);
         assertEquals("Modifica 1", DatabaseNote.findById(idNota).getContenuto());

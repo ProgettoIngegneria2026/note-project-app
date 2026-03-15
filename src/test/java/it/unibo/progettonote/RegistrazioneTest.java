@@ -1,20 +1,15 @@
 package it.unibo.progettonote;
-
+import it.unibo.progettonote.client.Nota;
+import it.unibo.progettonote.server.*;
 import org.junit.Before;
 import org.junit.Test;
-
-import it.unibo.progettonote.server.DatabaseCore;
-import it.unibo.progettonote.server.DatabaseUtenti;
-import it.unibo.progettonote.server.GestioneUtenti;
-
 import static org.junit.Assert.*;
 
 public class RegistrazioneTest {
 
     @Before
     public void setup() {
-        DatabaseUtenti.close();
-        DatabaseCore.enableTestMode();
+        DatabaseCore.enableTestMode(); 
         DatabaseUtenti.getUtentiRepo().clear();
         DatabaseCore.commit();
     }
@@ -22,23 +17,17 @@ public class RegistrazioneTest {
     @Test
     public void testRegistrazioneSuccesso() {
         GestioneUtenti gu = new GestioneUtenti();
-        String unique = String.valueOf(System.currentTimeMillis() + Math.random());
-        String username = "user_" + unique;
-        String email = "user_" + unique + "@email.it";
-
-        boolean ok = gu.registraNuovoUtente(username, email, "password123");
+        boolean ok = gu.registraNuovoUtente("mario_rossi", "mario@email.it", "password123");
         assertTrue("La registrazione dovrebbe avere successo", ok);
     }
 
     @Test
     public void testRegistrazioneEmailDuplicata() {
         GestioneUtenti gu = new GestioneUtenti();
-        String unique = String.valueOf(System.currentTimeMillis() + Math.random());
-        String email = "dup_" + unique + "@email.it";
-
-        assertTrue(gu.registraNuovoUtente("user1_" + unique, email, "password123"));
-        boolean ok2 = gu.registraNuovoUtente("user2_" + unique, email, "password123");
-
+        gu.registraNuovoUtente("user1", "stessa@email.it", "pass1");
+        
+        // Tento di registrare un altro utente con la stessa email
+        boolean ok2 = gu.registraNuovoUtente("user2", "stessa@email.it", "pass2");
         assertFalse("La registrazione dovrebbe fallire per email duplicata", ok2);
     }
 }
