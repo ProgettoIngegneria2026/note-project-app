@@ -49,7 +49,7 @@ public class GestioneNoteServiceImpl extends RemoteServiceServlet implements Ges
 
     @Override
     public boolean modificaNota(String idNota, String nuovoTitolo, String nuovoContenuto, String email, String idCartella) {
-        return mioNotaService.updateNota(idNota, nuovoTitolo, nuovoContenuto, email, idCartella);
+        return mioNotaService.updateNota(idNota, nuovoTitolo, nuovoContenuto, email, idCartella, null).equals("OK");
     }
 
     @Override
